@@ -25,10 +25,21 @@ vi.mock('./cli.js', () => ({
   })),
 }))
 
+// ── Mock child_process ──
+// healthCheck() uses execSync('which agently-cli') to detect CLI binary;
+// must mock to avoid failing in CI where agently-cli is not installed.
+
+vi.mock('child_process', () => ({
+  execSync: vi.fn(() => '/usr/local/bin/agently-cli'),
+  execFileSync: vi.fn(),
+}))
+
 import { runCli, ensureAuth } from './cli.js'
+import { execSync } from 'child_process'
 
 const mockRunCli = vi.mocked(runCli)
 const mockEnsureAuth = vi.mocked(ensureAuth)
+const mockExecSync = vi.mocked(execSync)
 
 // ── 测试数据 ──
 
@@ -105,14 +116,24 @@ describe('AgentlyProvider', () => {
   })
 
   describe('healthCheck()', () => {
-    it('should return connected when auth is valid', async () => {
+    it('should return connected when CLI exists and auth is valid', async () => {
+      mockExecSync.mockReturnValue('/usr/local/bin/agently-cli')
       mockEnsureAuth.mockReturnValue(undefined)
       const status = await provider.healthCheck()
       expect(status.connected).toBe(true)
       expect(status.provider).toBe('agently')
     })
 
+    it('should return not connected when CLI not found', async () => {
+      mockExecSync.mockImplementation(() => {
+        throw new Error('agently-cli not found')
+      })
+      const status = await provider.healthCheck()
+      expect(status.connected).toBe(false)
+    })
+
     it('should return not connected when auth fails', async () => {
+      mockExecSync.mockReturnValue('/usr/local/bin/agently-cli')
       mockEnsureAuth.mockImplementation(() => {
         throw new Error('Not logged in')
       })

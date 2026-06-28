@@ -4,7 +4,7 @@ Thanks for your interest in Mail Agent! This guide helps you get started with de
 
 ## Development Setup
 
-**Prerequisites**: Node.js ≥ 20, pnpm ≥ 9
+**Prerequisites**: Node.js ≥ 22, pnpm ≥ 9
 
 ## Project Structure
 
