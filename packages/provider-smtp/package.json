@@ -27,7 +27,7 @@
   "dependencies": {
     "@mail-agent/core": "workspace:*",
     "imapflow": "^1.0.0",
-    "mailparser": "^3.9.11",
+    "mailparser": "^3.9.12",
     "nodemailer": "^6.9.0",
     "uuid": "^10.0.0"
   },
