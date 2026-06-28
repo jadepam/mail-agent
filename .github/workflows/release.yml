@@ -4,11 +4,11 @@ on:
   push:
     branches: [main]
     paths:
-      - 'packages/**'
-      - 'scripts/**'
+      - 'packages/*/src/**'
+      - '!packages/*/src/**/*.test.ts'
+      - '!packages/*/src/**/*.spec.ts'
+      - 'packages/*/package.json'
       - 'package.json'
-      - 'pnpm-lock.yaml'
-      - '.github/workflows/release.yml'
   workflow_dispatch:
     inputs:
       bump:
@@ -47,7 +47,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: pnpm
           registry-url: https://registry.npmjs.org/
 
