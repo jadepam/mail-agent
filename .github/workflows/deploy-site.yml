@@ -4,17 +4,7 @@ on:
   push:
     branches: [main]
     paths:
-      - 'packages/**'
       - 'site/**'
-      - 'CHANGELOG.md'
-      - 'CODE_OF_CONDUCT.md'
-      - 'CODE_OF_CONDUCT.en.md'
-      - 'SECURITY.md'
-      - 'SECURITY.en.md'
-      - 'CLAUDE.md'
-      - 'arm.md'
-      - 'README.md'
-      - 'SKILL.md'
       - '.github/workflows/deploy-site.yml'
   workflow_dispatch:
 
