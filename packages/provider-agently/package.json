@@ -26,7 +26,7 @@
   },
   "dependencies": {
     "@mail-agent/core": "workspace:*",
-    "uuid": "^10.0.0"
+    "uuid": "^14.0.1"
   },
   "devDependencies": {
     "tsdown": "^0.22.0",
