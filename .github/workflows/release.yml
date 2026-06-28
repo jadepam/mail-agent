@@ -34,6 +34,7 @@ jobs:
   release:
     runs-on: ubuntu-latest
     environment: release
+    if: github.actor != 'github-actions[bot]'
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -59,31 +60,9 @@ jobs:
         id: bump
         run: |
           BUMP_TYPE="${{ github.event.inputs.bump || 'patch' }}"
-          CURRENT=$(node -p "require('./package.json').version")
-
-          # Parse and bump
-          IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT"
-          case "$BUMP_TYPE" in
-            major) NEW="$((MAJOR + 1)).0.0" ;;
-            minor) NEW="${MAJOR}.$((MINOR + 1)).0" ;;
-            patch) NEW="${MAJOR}.${MINOR}.$((PATCH + 1)) ;;
-            *) echo "Unknown bump type: $BUMP_TYPE"; exit 1 ;;
-          esac
-
-          echo "Bumping: $CURRENT -> $NEW ($BUMP_TYPE)"
-
-          # Update root package.json
-          node -e "
-            const fs = require('fs');
-            const pkg = JSON.parse(fs.readFileSync('package.json', 'utf-8'));
-            pkg.version = '$NEW';
-            fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2) + '\n');
-          "
-
-          # Sync version to all sub-packages and files
-          node scripts/sync-version.mjs
-
-          echo "version=$NEW" >> $GITHUB_OUTPUT
+          node scripts/bump.mjs "$BUMP_TYPE"
+          NEW=$(node -p 'require("./package.json").version')
+          echo "version=$NEW" >> "$GITHUB_OUTPUT"
 
       - name: Verify version consistency
         run: node scripts/sync-version.mjs --check
@@ -102,7 +81,11 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add -A
-          git commit -m "chore: release v${VERSION}"
+          if git diff --cached --quiet; then
+            echo "No changes to commit (v${VERSION} tag may already exist)"
+          else
+            git commit -m "chore: release v${VERSION}"
+          fi
           git tag -a "v${VERSION}" -m "Release v${VERSION}"
           git push origin main --follow-tags
 

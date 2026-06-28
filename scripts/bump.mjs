@@ -48,8 +48,8 @@ function bumpVersion(current, type) {
 const newVersion = bumpVersion(currentVersion, arg)
 
 if (newVersion === currentVersion) {
-  console.error(`Version unchanged: ${currentVersion}`)
-  process.exit(1)
+  console.log(`Version unchanged: ${currentVersion} (no bump needed)`)
+  process.exit(0)
 }
 
 // Update root package.json
