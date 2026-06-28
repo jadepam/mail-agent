@@ -29,7 +29,7 @@
     "imapflow": "^1.0.0",
     "mailparser": "^3.9.11",
     "nodemailer": "^6.9.0",
-    "uuid": "^10.0.0"
+    "uuid": "^14.0.1"
   },
   "devDependencies": {
     "@types/nodemailer": "^6.4.0",
