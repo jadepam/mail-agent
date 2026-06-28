@@ -1,0 +1,312 @@
+---
+title: CLI 命令参考
+description: ma CLI 全部命令与参数详解，面向人和 AI
+---
+
+## 快速体验
+
+安装后，在终端中依次执行以下命令，体验 Mail Agent 的核心功能：
+
+**1. 查看已配置账号**
+
+```bash
+ma +me
+```
+
+输出示例：
+
+```
+┌──────────┬──────────┬──────────────────────┬──────────┐
+│   别名   │   类型   │       邮箱地址       │ 认证方式 │
+├──────────┼──────────┼──────────────────────┼──────────┤
+│ Gmail    │ gmail    │ me@gmail.com         │ OAuth2   │
+│ QQ邮箱   │ qq       │ 1234@qq.com          │ 密码     │
+│ Agent邮箱 │ agently  │ me@agent.qq.com      │ agently  │
+│ 飞书邮箱  │ lark     │ me@company.com       │ lark-cli │
+└──────────┴──────────┴──────────────────────┴──────────┘
+```
+
+**2. 列出最近邮件**
+
+```bash
+ma list -n 3
+```
+
+输出示例：
+
+```
+📬 Agent邮箱  — 3 封邮件
+
+  ● 张三 — 会议通知            2026-06-25
+  ★ 李四 — Q3 报告            2026-06-24
+  🤖 Agent — 任务完成通知       2026-06-24
+```
+
+**3. 发送邮件**
+
+```bash
+ma send -t zhangsan@example.com -s "Re: 会议通知" -b "收到"
+```
+
+输出示例：
+
+```
+✅ 邮件已发送
+  → zhangsan@example.com
+  主题: Re: 会议通知
+```
+
+## 全局规则
+
+- 所有命令均支持 `--json` 输出结构化数据（AI 始终使用 `--json`）
+- `--account <别名>` 指定邮箱，不指定时使用默认邮箱
+- `--account` 的值是**别名**（如 `Gmail`），不是邮箱地址
+
+## Human Mode / AI Mode
+
+ma CLI 支持**人类模式**和 **AI 模式**，控制破坏性操作（send、reply、forward、trash）是否需要二次确认。
+
+| 模式 | 确认行为 | 适用场景 |
+|------|----------|----------|
+| Human（默认） | 破坏性操作前弹交互确认 | 人类在终端操作 |
+| AI | 跳过所有确认，直接执行 | AI Agent 自动化、脚本 |
+
+**模式判定优先级**（高→低）：
+
+1. `--json` — 隐式 AI 模式（结构化输出由程序消费）
+2. `-y, --yes` — 显式跳过确认
+3. `config.yaml` 中 `mode: ai` — 持久 AI 模式
+4. 默认 — Human 模式
+
+**使用示例**：
+
+```bash
+# 人类模式：发送前会弹确认
+ma send -t bob@x.com -s "通知" -b "内容"
+
+# AI 模式：跳过确认，直接发送
+ma send -t bob@x.com -s "通知" -b "内容" -y
+
+# --json 自动隐式 AI 模式（无需 -y）
+ma send -t bob@x.com -s "通知" -b "内容" --json
+
+# 持久 AI 模式：在 config.yaml 中设置 mode: ai
+```
+
+> MCP Server 模式天然是 AI 模式，无需额外配置。
+
+## 邮件操作
+
+### ma list — 列出邮件
+
+返回邮件摘要列表，**不含正文**。需要正文时用返回的 `id` 调用 `read`。
+
+```bash
+ma list                          # 默认邮箱，INBOX，最近 20 封
+ma list -n 5                     # 最近 5 封
+ma list --unread                 # 仅未读
+ma list --account "QQ邮箱"       # 指定邮箱
+ma list -n 10 --unread --json    # 组合使用
+```
+
+| 选项 | 说明 |
+|------|------|
+| `-f, --folder <name>` | 文件夹（默认 INBOX） |
+| `-n, --limit <number>` | 返回数量（默认 20） |
+| `--unread` | 仅未读邮件 |
+| `--account <alias>` | 邮箱别名 |
+| `--json` | JSON 输出 |
+
+### ma read — 读取邮件
+
+读取邮件完整内容，包括正文、附件信息。
+
+```bash
+ma read <mail-id> --json
+ma read <mail-id> --account "Gmail" --json
+```
+
+| 选项 | 说明 |
+|------|------|
+| `<mail-id>` | 邮件 ID（来自 `list` 或 `search`，必须原样传递） |
+| `--account <alias>` | 邮箱别名 |
+| `--json` | JSON 输出 |
+
+> ⚠️ `mail-id` 必须原样传递，不可截断或修改。
+
+### ma search — 搜索邮件
+
+按关键词搜索邮件主题和正文。
+
+```bash
+ma search "报销" --json
+ma search "report" -n 5 --json
+ma search "会议" --account "公司邮箱" --json
+```
+
+| 选项 | 说明 |
+|------|------|
+| `<query>` | 搜索关键词 |
+| `-n, --limit <number>` | 返回数量（默认 20） |
+| `-f, --folder <name>` | 文件夹过滤 |
+| `--from <sender>` | 发件人过滤 |
+| `--unread` | 仅未读 |
+| `--account <alias>` | 邮箱别名 |
+| `--json` | JSON 输出 |
+
+> ⚠️ 163 邮箱中文搜索可能返回空结果，建议用英文搜索或先 `list` 再客户端过滤。
+
+### ma send — 发送邮件
+
+```bash
+ma send -t x@x.com -s "主题" -b "正文"
+ma send -t a@x.com,b@x.com -s "报告" -b "见附件" --account "公司邮箱"
+ma send -t alice@example.com -s "通知" -b "内容" -c "boss@example.com"
+ma send -t bob@x.com -s "报告" -b "见附件" --attach ./report.pdf
+```
+
+| 选项 | 说明 |
+|------|------|
+| `-t, --to <addresses>` | 收件人（逗号分隔） |
+| `-s, --subject <subject>` | 主题 |
+| `-b, --body <body>` | 正文 |
+| `-c, --cc <addresses>` | 抄送 |
+| `--bcc <addresses>` | 密送 |
+| `--attach <files...>` | 附件文件路径（可多次指定） |
+| `--in-reply-to <message-id>` | 回复的邮件 ID |
+| `--account <alias>` | 邮箱别名 |
+| `-y, --yes` | 跳过确认（AI 模式） |
+
+**回复邮件流程**：
+1. `ma read <id> --json` → 获取发件人地址和主题
+2. `ma reply <id> -b "回复内容"` — 或用旧方式 `ma send -t "发件人地址" -s "Re: 主题" -b "回复内容"`
+
+### ma reply — 回复邮件
+
+自动填充收件人、主题（Re: 前缀）和引用原文。
+
+```bash
+ma reply <mail-id> -b "收到，谢谢"              # 回复发件人
+ma reply <mail-id> -b "收到" --reply-all         # 回复全部
+ma reply <mail-id> -b "收到" --no-quote          # 不引用原文
+ma reply <mail-id> -b "正文" --cc "a@x.com"      # 追加抄送
+```
+
+| 选项 | 说明 |
+|------|------|
+| `-b, --body <body>` | 回复正文 |
+| `--reply-all` | 回复全部（收件人 + 抄送） |
+| `--cc <addresses>` | 追加抄送 |
+| `--no-quote` | 不引用原文 |
+| `--account <alias>` | 邮箱别名 |
+| `--json` | JSON 输出 |
+| `-y, --yes` | 跳过确认（AI 模式） |
+
+### ma forward — 转发邮件
+
+自动添加 Fwd: 前缀和转发原文。
+
+```bash
+ma forward <mail-id> -t bob@x.com               # 转发邮件
+ma forward <mail-id> -t bob@x.com -b "请查阅"    # 附带转发说明
+ma forward <mail-id> -t bob@x.com --include-attachments  # 附带原附件
+```
+
+| 选项 | 说明 |
+|------|------|
+| `-t, --to <addresses>` | 转发收件人（逗号分隔） |
+| `-b, --body <body>` | 转发说明 |
+| `--include-attachments` | 附带原附件转发 |
+| `--account <alias>` | 邮箱别名 |
+| `--json` | JSON 输出 |
+| `-y, --yes` | 跳过确认（AI 模式） |
+
+### ma trash — 删除邮件
+
+将邮件移入回收站（软删除）。
+
+```bash
+ma trash <mail-id>                 # 删除默认邮箱的邮件
+ma trash <mail-id> --account "Gmail" # 删除指定邮箱的邮件
+```
+
+| 选项 | 说明 |
+|------|------|
+| `<mail-id>` | 邮件 ID |
+| `--account <alias>` | 邮箱别名 |
+| `--json` | JSON 输出 |
+| `-y, --yes` | 跳过确认（AI 模式） |
+
+### ma download — 下载附件
+
+下载邮件中的附件到本地。
+
+```bash
+ma download <mail-id> --att 报告.pdf              # 下载指定附件
+ma download <mail-id> --att 报告.pdf -o ~/Downloads  # 指定保存目录
+ma download <mail-id> --all                        # 下载所有附件
+```
+
+| 选项 | 说明 |
+|------|------|
+| `--att <filename>` | 附件名称 |
+| `--all` | 下载所有附件 |
+| `-o, --output <dir>` | 保存目录（默认当前目录） |
+| `--account <alias>` | 邮箱别名 |
+| `--json` | JSON 输出 |
+
+### ma thread — 查看会话
+
+获取邮件会话中的所有往来邮件。**Gmail 和 Lark/飞书邮箱原生支持**。
+
+```bash
+ma thread <thread-id> --json
+```
+
+## 账号管理
+
+### ma +me — 查看账号
+
+列出所有已配置邮箱，显示别名、类型、认证方式、默认标记。
+
+```bash
+ma +me
+ma +me --json
+```
+
+### ma account — 管理账号
+
+```bash
+ma account add               # 交互式添加邮箱
+ma account list              # 列出所有账号
+ma account remove <别名>     # 删除账号
+ma account rename <别名> <新别名>  # 重命名
+ma account test <别名>       # 测试连接
+ma account set-default <别名> # 设置默认邮箱
+```
+
+### ma init — 初始化
+
+首次使用时运行，自动扫描本地可用邮箱（如已安装 agently-cli），交互式引导添加。初始化时会询问运行模式（Human / AI）。
+
+```bash
+ma init
+```
+
+### ma mode — 切换运行模式
+
+查看或切换 Human Mode / AI Mode。
+
+```bash
+ma mode            # 查看当前模式
+ma mode ai         # 切换到 AI 模式（跳过确认，适合自动化）
+ma mode human      # 切换到人类模式（破坏性操作需二次确认）
+```
+
+## MCP 模式
+
+以 MCP Server 模式启动（stdio 传输），供 AI 工具接入。
+
+```bash
+ma mcp
+```

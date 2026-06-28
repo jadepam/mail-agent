@@ -1,0 +1,40 @@
+---
+title: 快速开始
+description: Agent 一键接入 Mail Agent，让 AI 操作你的邮箱
+---
+
+import TopologySection from '~/components/TopologySection.astro';
+
+## 架构总览
+
+<TopologySection locale="zh" />
+
+## Agent 一键接入
+
+将以下提示词复制并发送到你的 Agent 对话窗口，自动完成安装和配置。
+
+### Skill 方式
+
+> 推荐。Agent 会自动安装 CLI + Skill，无需手动操作。
+
+```text
+请阅读 https://raw.githubusercontent.com/jadepam/mail-agent/main/cli-setup.md 文档，按照 skill 方式为我安装并配置 Mail Agent。
+```
+
+适用于：Claude Code / Cursor 等
+
+### MCP 方式
+
+> 需先确保本地已安装 Mail Agent CLI。
+
+```text
+请阅读 https://raw.githubusercontent.com/jadepam/mail-agent/main/cli-setup.md 文档，按照 mcp 方式为我安装并配置 Mail Agent。
+```
+
+适用于：Claude Code / Cursor / Windsurf 等
+
+## 下一步
+
+- [MCP 工具参考](/mcp-tools/) — 查看所有可用的邮件操作工具
+- [支持的邮箱](/supported-providers/) — 查看已兼容的邮箱服务商
+- [配置文件参考](/config-reference/) — 了解高级配置选项

@@ -1,0 +1,250 @@
+---
+/**
+ * AgentTerminal — Simulates a Claude Code terminal with animated typing.
+ * Shows the conversational flow of installing Mail Agent via MCP or Skill mode.
+ */
+import type { Locale, TerminalStepData, ToolCallData, MailListItem } from '../data/site-data';
+
+interface Props {
+  id: string;
+  steps: TerminalStepData[];
+  locale?: Locale;
+}
+
+const { id, steps, locale = 'zh' } = Astro.props;
+const isZh = locale === 'zh';
+
+// Pre-render each step's HTML
+interface RenderedStep {
+  userInput: string;
+  toolCallHtml: string[];
+  cliOutputHtml: string[];
+  agentReplyHtml: string;
+  mailListHtml: string;
+}
+
+function renderToolCall(tc: ToolCallData): string {
+  if (tc.type === 'bash') {
+    const annotation = tc.annotation
+      ? `<span class="claude-tool-annotation">→ ${tc.annotation}</span>`
+      : '';
+    return `<span class="claude-tool-marker">⏺</span><span class="claude-tool-name">Bash</span><span class="claude-tool-args">(${tc.command})</span>${annotation}`;
+  } else {
+    const params = tc.params
+      ? Object.entries(tc.params).map(([k, v]) => `${k}: ${v}`).join(', ')
+      : '';
+    return `<span class="claude-tool-marker">⏺</span><span class="claude-tool-name">${tc.toolName}</span><span class="claude-tool-args">(${params})</span>`;
+  }
+}
+
+function renderMailList(account: string, mails: MailListItem[]): string {
+  const header = `<span class="claude-mail-list-header">📬 ${account} — ${isZh ? `${mails.length} 封邮件` : `${mails.length} emails`}</span>`;
+  const items = mails.map(m => {
+    const icon = m.unread ? '<span class="claude-mail-unread">●</span>' : '<span class="claude-mail-unread">★</span>';
+    return `<span class="claude-mail-item">${icon} ${m.sender} — ${m.subject}<span class="claude-mail-date">${m.date}</span></span>`;
+  }).join('\n');
+  return `${header}\n${items}`;
+}
+
+const renderedSteps: RenderedStep[] = steps.map((step, i) => ({
+  userInput: step.userInput,
+  toolCallHtml: (step.toolCalls || []).map(renderToolCall),
+  cliOutputHtml: (step.cliOutputLines || []).map(line => line),
+  agentReplyHtml: step.agentReply,
+  mailListHtml: step.mailList ? renderMailList(step.mailList.account, step.mailList.mails) : '',
+}));
+
+// Serialize step metadata for the client script
+const stepMeta = steps.map((step, i) => ({
+  userInput: step.userInput,
+  hasToolCalls: !!(step.toolCalls && step.toolCalls.length),
+  hasCliOutput: !!(step.cliOutputLines && step.cliOutputLines.length),
+  hasAgentReply: !!step.agentReply,
+  hasMailList: !!step.mailList,
+}));
+---
+
+<div class="claude-terminal h-[420px]" id={`terminal-${id}`}>
+  <div class="claude-terminal-header">
+    <div class="claude-terminal-dot bg-red-500"></div>
+    <div class="claude-terminal-dot bg-yellow-500"></div>
+    <div class="claude-terminal-dot bg-green-500"></div>
+    <span class="ml-2 text-xs text-gray-500">claude</span>
+  </div>
+  <div class="claude-terminal-body" id={`terminal-body-${id}`}>
+    <!-- Terminal header -->
+    <div class="claude-header" id={`logo-${id}`}>
+      <svg class="claude-header-icon" viewBox="0 0 24 24" fill="none">
+        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2Z" fill="#D97757"/>
+        <path d="M8 7.5C8 6.67 8.67 6 9.5 6h5c.83 0 1.5.67 1.5 1.5v2c0 .83-.67 1.5-1.5 1.5H9.5C8.67 11 8 10.33 8 9.5v-2Z" fill="#FAFAF9" opacity="0.9"/>
+        <path d="M8 14.5c0-.83.67-1.5 1.5-1.5h5c.83 0 1.5.67 1.5 1.5v2c0 .83-.67 1.5-1.5 1.5H9.5C8.67 18 8 17.33 8 16.5v-2Z" fill="#FAFAF9" opacity="0.6"/>
+        <circle cx="12" cy="12" r="1.5" fill="#FAFAF9"/>
+      </svg>
+      <div class="claude-header-text">
+        <span class="claude-header-title">Claude Code <span class="claude-header-version">v2.1.195</span></span>
+        <span class="claude-header-meta">Opus 4.8 (1M context) · ~/Documents/project</span>
+      </div>
+    </div>
+
+    <!-- Steps container -->
+    <div id={`steps-${id}`}>
+      {renderedSteps.map((step, i) => (
+        <div class="claude-step" id={`step-${id}-${i}`}>
+          <!-- User input -->
+          <div class="claude-user-input">
+            <span class="claude-user-prompt">&gt;</span>
+            <span id={`user-cmd-${id}-${i}`}></span>
+            <span class="cursor-blink text-orange-300" id={`user-cursor-${id}-${i}`}>▋</span>
+          </div>
+
+          <!-- Tool calls (hidden initially) -->
+          {step.toolCallHtml.length > 0 && (
+            <div class="hidden" id={`toolcalls-${id}-${i}`}>
+              {step.toolCallHtml.map((html, j) => (
+                <div class="claude-tool-call" set:html={html} />
+              ))}
+            </div>
+          )}
+
+          <!-- CLI output (hidden initially) -->
+          {step.cliOutputHtml.length > 0 && (
+            <div class="hidden" id={`cli-output-${id}-${i}`}>
+              {step.cliOutputHtml.map((line, j) => (
+                <div class="claude-cli-output" set:html={line} />
+              ))}
+            </div>
+          )}
+
+          <!-- Agent reply (hidden initially) -->
+          {step.agentReplyHtml && (
+            <div class="claude-agent-reply hidden" id={`reply-${id}-${i}`}>
+              {step.agentReplyHtml}
+            </div>
+          )}
+
+          <!-- Mail list (hidden initially) -->
+          {step.mailListHtml && (
+            <pre class="hidden text-xs leading-relaxed" id={`maillist-${id}-${i}`} set:html={step.mailListHtml} />
+          )}
+        </div>
+      ))}
+    </div>
+  </div>
+</div>
+
+<script define:vars={{ id, stepMeta }}>
+  const terminalId = id;
+  const steps = stepMeta;
+  let started = false;
+  let animationRunning = false;
+
+  async function typeText(elementId, text, speed = 35) {
+    const el = document.getElementById(elementId);
+    if (!el) return;
+    for (let i = 0; i < text.length; i++) {
+      el.textContent += text[i];
+      await new Promise(r => setTimeout(r, speed));
+    }
+  }
+
+  function hideCursor(cursorId) {
+    const cursor = document.getElementById(cursorId);
+    if (cursor) cursor.style.display = 'none';
+  }
+
+  function showElement(elementId) {
+    const el = document.getElementById(elementId);
+    if (el) el.classList.remove('hidden');
+  }
+
+  async function runDemo() {
+    if (animationRunning) return;
+    animationRunning = true;
+
+    for (let i = 0; i < steps.length; i++) {
+      const step = steps[i];
+
+      // Type user input
+      await typeText(`user-cmd-${terminalId}-${i}`, step.userInput, 30);
+      hideCursor(`user-cursor-${terminalId}-${i}`);
+      await new Promise(r => setTimeout(r, 400));
+
+      // Show tool calls
+      if (step.hasToolCalls) {
+        showElement(`toolcalls-${terminalId}-${i}`);
+        await new Promise(r => setTimeout(r, 600));
+      }
+
+      // Show CLI output
+      if (step.hasCliOutput) {
+        showElement(`cli-output-${terminalId}-${i}`);
+        await new Promise(r => setTimeout(r, 500));
+      }
+
+      // Show agent reply
+      if (step.hasAgentReply) {
+        showElement(`reply-${terminalId}-${i}`);
+        await new Promise(r => setTimeout(r, 800));
+      }
+
+      // Show mail list
+      if (step.hasMailList) {
+        showElement(`maillist-${terminalId}-${i}`);
+        await new Promise(r => setTimeout(r, 1000));
+      }
+    }
+
+    animationRunning = false;
+  }
+
+  function reset() {
+    started = false;
+    animationRunning = false;
+
+    for (let i = 0; i < steps.length; i++) {
+      const cmdEl = document.getElementById(`user-cmd-${terminalId}-${i}`);
+      if (cmdEl) cmdEl.textContent = '';
+
+      const cursorEl = document.getElementById(`user-cursor-${terminalId}-${i}`);
+      if (cursorEl) cursorEl.style.display = '';
+
+      const ids = [
+        `toolcalls-${terminalId}-${i}`,
+        `cli-output-${terminalId}-${i}`,
+        `reply-${terminalId}-${i}`,
+        `maillist-${terminalId}-${i}`,
+      ];
+      ids.forEach(elId => {
+        const el = document.getElementById(elId);
+        if (el) el.classList.add('hidden');
+      });
+    }
+  }
+
+  // IntersectionObserver to trigger animation when visible
+  const observer = new IntersectionObserver(
+    (entries) => {
+      if (entries[0].isIntersecting && !started) {
+        started = true;
+        runDemo();
+      }
+    },
+    { threshold: 0.3 }
+  );
+
+  const terminalBody = document.getElementById(`terminal-body-${terminalId}`);
+  if (terminalBody) {
+    observer.observe(terminalBody);
+  }
+
+  // Listen for restart events from tab switching
+  window.addEventListener('terminal:restart', (e) => {
+    if (e.detail.id !== terminalId) return;
+    reset();
+    // Small delay to allow DOM to settle after display toggle
+    setTimeout(() => {
+      started = true;
+      runDemo();
+    }, 100);
+  });
+</script>

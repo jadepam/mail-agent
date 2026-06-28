@@ -1,0 +1,55 @@
+name: Deploy Site
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'packages/**'
+      - 'site/**'
+      - 'CHANGELOG.md'
+      - 'CODE_OF_CONDUCT.md'
+      - 'CODE_OF_CONDUCT.en.md'
+      - 'SECURITY.md'
+      - 'SECURITY.en.md'
+      - 'CLAUDE.md'
+      - 'arm.md'
+      - 'README.md'
+      - 'SKILL.md'
+      - '.github/workflows/deploy-site.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: 安装依赖
+        run: pnpm install --frozen-lockfile
+
+      - name: 构建站点
+        run: pnpm build
+        working-directory: site
+
+      - name: 部署到 gh-pages 分支
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: ./site/dist
+          user_name: github-actions[bot]
+          user_email: github-actions[bot]@users.noreply.github.com
+          commit_message: 'deploy: site update @${{ github.sha }}'

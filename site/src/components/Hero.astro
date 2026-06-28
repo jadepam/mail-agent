@@ -1,0 +1,351 @@
+---
+/**
+ * Mail Agent custom Hero — replaces Starlight's default Hero component.
+ * Renders the full homepage content: particles + headline + terminal + feature cards + agent integration.
+ */
+import { getSiteData } from '../data/site-data';
+import FeatureCards from './FeatureCards.astro';
+import AgentTerminal from './AgentTerminal.astro';
+import '../styles/global.css';
+
+// Determine locale from the current page route
+const sl = Astro.locals.starlightRoute;
+const locale = sl?.locale === 'en' ? 'en' : 'zh';
+const data = getSiteData(locale);
+const termData = data.agentTerminal;
+---
+
+<!-- Full-page particle canvas wrapping entire homepage -->
+<div class="home-particles relative overflow-hidden" id="home-particles">
+  <canvas id="hero-particles" class="pointer-events-none absolute inset-0 z-0"></canvas>
+
+  <!-- Decorative elements behind content -->
+  <div class="pointer-events-none absolute inset-0 z-0 overflow-hidden">
+    <div class="hero-geo-left absolute -left-20 top-10 opacity-20">
+      <svg width="200" height="200" viewBox="0 0 200 200" fill="none">
+        <polygon points="100,10 185,55 185,145 100,190 15,145 15,55" stroke="#6366f1" stroke-width="0.5" fill="none"/>
+        <polygon points="100,30 170,65 170,135 100,170 30,135 30,65" stroke="#8b5cf6" stroke-width="0.3" fill="none"/>
+      </svg>
+    </div>
+    <div class="hero-geo-right absolute -right-16 top-20 opacity-20">
+      <svg width="160" height="160" viewBox="0 0 160 160" fill="none">
+        <circle cx="80" cy="80" r="70" stroke="#6366f1" stroke-width="0.5" fill="none" stroke-dasharray="8 12"/>
+        <circle cx="80" cy="80" r="50" stroke="#8b5cf6" stroke-width="0.3" fill="none" stroke-dasharray="4 8"/>
+      </svg>
+    </div>
+    <svg class="hero-circuit absolute bottom-0 left-0 w-full opacity-10" height="60" viewBox="0 0 1200 60" preserveAspectRatio="none" fill="none">
+      <line x1="0" y1="30" x2="200" y2="30" stroke="#6366f1" stroke-width="0.5"/>
+      <line x1="250" y1="30" x2="400" y2="30" stroke="#6366f1" stroke-width="0.5"/>
+      <line x1="450" y1="10" x2="450" y2="50" stroke="#8b5cf6" stroke-width="0.3"/>
+      <line x1="450" y1="30" x2="650" y2="30" stroke="#6366f1" stroke-width="0.5"/>
+      <line x1="700" y1="30" x2="900" y2="30" stroke="#6366f1" stroke-width="0.5"/>
+      <line x1="950" y1="10" x2="950" y2="50" stroke="#8b5cf6" stroke-width="0.3"/>
+      <line x1="950" y1="30" x2="1200" y2="30" stroke="#6366f1" stroke-width="0.5"/>
+      <circle cx="200" cy="30" r="3" fill="#6366f1"/>
+      <circle cx="400" cy="30" r="3" fill="#6366f1"/>
+      <circle cx="650" cy="30" r="3" fill="#6366f1"/>
+      <circle cx="900" cy="30" r="3" fill="#6366f1"/>
+    </svg>
+    <div class="absolute left-1/2 top-0 h-[500px] w-[800px] -translate-x-1/2 rounded-full bg-indigo-500/[0.03] blur-[120px]"></div>
+  </div>
+
+  <!-- Hero Section -->
+  <section class="hero-section relative px-6 pt-16 pb-12">
+    <div class="relative z-10 mx-auto grid max-w-6xl grid-cols-1 lg:grid-cols-[4fr_6fr] lg:gap-16">
+      <!-- Left: Brand + description + CTA -->
+      <div class="mb-10 text-center lg:mb-0 lg:text-left lg:pt-12">
+        <h1 class="hero-title mb-3 text-3xl font-extrabold tracking-tight sm:text-5xl">
+          {data.heroTitle}
+        </h1>
+        <p class="hero-desc mb-3 text-base leading-relaxed sm:text-lg">
+          {data.heroDesc}
+        </p>
+        <p class="mb-8 text-sm font-medium text-indigo-300/60" id="slogan" style="min-height: 1.5rem;"></p>
+        <div class="flex flex-wrap gap-3">
+          <a
+            href={`${import.meta.env.BASE_URL}${locale === 'en' ? 'en/' : ''}getting-started/`}
+            class="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-6 py-3 font-semibold text-white shadow-lg shadow-indigo-500/25 transition-all hover:bg-indigo-500 hover:shadow-indigo-500/40 hover:-translate-y-0.5"
+          >
+            {data.ctaQuickstart}
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+            </svg>
+          </a>
+        </div>
+      </div>
+
+      <!-- Right: Agent terminal with tabs -->
+      <div class="lg:flex lg:items-center" id="quickstart">
+        <div class="w-full">
+          <h2 class="mb-2 text-xl font-bold text-white">{data.agentTitle}</h2>
+          <p class="mb-4 text-sm text-[var(--color-text-muted)]">{data.agentDesc}</p>
+
+          <!-- Tabs -->
+          <div class="flex gap-2 mb-3">
+            <button id="tab-skill" class="agent-tab agent-tab-active">Skill</button>
+            <button id="tab-mcp" class="agent-tab">MCP</button>
+          </div>
+
+          <!-- MCP Terminal -->
+          <div id="terminal-mcp" class="terminal-panel" style="display:none;">
+            <AgentTerminal id="mcp" steps={termData.mcpSteps} locale={locale} />
+            <div class="mt-3 flex items-center justify-between gap-2">
+              <span class="text-xs text-[var(--color-text-muted)]">{termData.mcpSupport}</span>
+              <button
+                class="copy-btn rounded-lg border border-indigo-500/30 bg-indigo-500/10 px-3 py-1 text-xs text-indigo-300 transition-all hover:bg-indigo-500/20"
+                data-prompt={termData.mcpPrompt}
+                data-label-copy={termData.copyLabel}
+                data-label-copied={termData.copiedLabel}
+              >
+                {termData.copyLabel}
+              </button>
+            </div>
+          </div>
+
+          <!-- Skill Terminal -->
+          <div id="terminal-skill" class="terminal-panel">
+            <AgentTerminal id="skill" steps={termData.skillSteps} locale={locale} />
+            <div class="mt-3 flex items-center justify-between gap-2">
+              <span class="text-xs text-[var(--color-text-muted)]">{termData.skillSupport}</span>
+              <button
+                class="copy-btn rounded-lg border border-indigo-500/30 bg-indigo-500/10 px-3 py-1 text-xs text-indigo-300 transition-all hover:bg-indigo-500/20"
+                data-prompt={termData.skillPrompt}
+                data-label-copy={termData.copyLabel}
+                data-label-copied={termData.copiedLabel}
+              >
+                {termData.copyLabel}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Divider -->
+  <div class="h-px bg-gradient-to-r from-transparent via-indigo-500/20 to-transparent"></div>
+
+  <!-- Feature Cards -->
+  <FeatureCards locale={locale} />
+</div>
+
+<style>
+  .agent-tab {
+    font-size: 0.8125rem;
+    padding: 0.375rem 1rem;
+    border-radius: 0.5rem;
+    border: 1px solid rgba(99,102,241,0.2);
+    background: transparent;
+    color: #8b8fa3;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .agent-tab:hover {
+    border-color: rgba(99,102,241,0.4);
+    color: #a5b4fc;
+  }
+  .agent-tab-active {
+    background: rgba(99,102,241,0.15);
+    border-color: rgba(99,102,241,0.4);
+    color: #a5b4fc;
+    font-weight: 600;
+  }
+</style>
+<script>
+  function switchTab(tab: string) {
+    const mcpTab = document.getElementById('tab-mcp');
+    const skillTab = document.getElementById('tab-skill');
+    const mcpPanel = document.getElementById('terminal-mcp');
+    const skillPanel = document.getElementById('terminal-skill');
+    if (!mcpTab || !skillTab || !mcpPanel || !skillPanel) return;
+
+    if (tab === 'skill') {
+      skillTab.classList.add('agent-tab-active');
+      mcpTab.classList.remove('agent-tab-active');
+      skillPanel.style.display = '';
+      mcpPanel.style.display = 'none';
+    } else {
+      mcpTab.classList.add('agent-tab-active');
+      skillTab.classList.remove('agent-tab-active');
+      mcpPanel.style.display = '';
+      skillPanel.style.display = 'none';
+    }
+
+    // Restart animation on the newly active terminal
+    window.dispatchEvent(new CustomEvent('terminal:restart', { detail: { id: tab } }));
+  }
+
+  document.getElementById('tab-mcp')?.addEventListener('click', () => switchTab('mcp'));
+  document.getElementById('tab-skill')?.addEventListener('click', () => switchTab('skill'));
+
+  document.querySelectorAll('.copy-btn').forEach(btn => {
+    btn.addEventListener('click', async function() {
+      const prompt = this.getAttribute('data-prompt');
+      const labelCopy = this.getAttribute('data-label-copy') || '复制';
+      const labelCopied = this.getAttribute('data-label-copied') || '已复制 ✓';
+      if (!prompt) return;
+      try {
+        await navigator.clipboard.writeText(prompt);
+        this.textContent = labelCopied;
+        setTimeout(() => { this.textContent = labelCopy; }, 2000);
+      } catch {
+        const ta = document.createElement('textarea');
+        ta.value = prompt;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        this.textContent = labelCopied;
+        setTimeout(() => { this.textContent = labelCopy; }, 2000);
+      }
+    });
+  });
+</script>
+<script>
+  const canvas = document.getElementById('hero-particles') as HTMLCanvasElement;
+  const particleContainer = document.getElementById('home-particles');
+  if (canvas && particleContainer) {
+    const ctx = canvas.getContext('2d')!;
+    const particles: Array<{ x: number; y: number; vx: number; vy: number; size: number; alpha: number; life: number; maxLife: number }> = [];
+    const CONNECT_DIST = 160;
+    const MOUSE_RADIUS = 240;
+    const MOUSE_FORCE = 0.08;
+    const MAX_PARTICLES = 260;
+    let mouseX = -9999;
+    let mouseY = -9999;
+
+    function resize() {
+      const rect = particleContainer!.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+      canvas.style.width = rect.width + 'px';
+      canvas.style.height = rect.height + 'px';
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+
+    particleContainer.addEventListener('mousemove', (e: MouseEvent) => {
+      const rect = canvas.getBoundingClientRect();
+      mouseX = e.clientX - rect.left;
+      mouseY = e.clientY - rect.top;
+    });
+    particleContainer.addEventListener('mouseleave', () => {
+      mouseX = -9999;
+      mouseY = -9999;
+    });
+
+    function spawn() {
+      if (particles.length >= MAX_PARTICLES) return;
+      const speed = 0.1 + Math.random() * 0.25;
+      const angle = Math.random() * Math.PI * 2;
+      particles.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        size: 1.5 + Math.random() * 2,
+        alpha: 0,
+        life: 0,
+        maxLife: 400 + Math.random() * 400,
+      });
+    }
+
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i];
+        const dx = mouseX - p.x;
+        const dy = mouseY - p.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < MOUSE_RADIUS && dist > 1) {
+          const force = (1 - dist / MOUSE_RADIUS) * MOUSE_FORCE;
+          p.vx += (dx / dist) * force;
+          p.vy += (dy / dist) * force;
+        }
+        p.vx *= 0.96;
+        p.vy *= 0.96;
+        p.x += p.vx;
+        p.y += p.vy;
+        p.life++;
+        if (p.life > p.maxLife) { particles.splice(i, 1); continue; }
+        p.alpha = p.life < 40 ? p.life / 40 : p.life > p.maxLife - 40 ? (p.maxLife - p.life) / 40 : 0.5;
+        const mouseBrightness = dist < MOUSE_RADIUS ? (1 - dist / MOUSE_RADIUS) * 0.5 : 0;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(99,102,241,${Math.min(p.alpha + mouseBrightness, 1)})`;
+        ctx.fill();
+        if (mouseBrightness > 0.05) {
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size * 3, 0, Math.PI * 2);
+          const grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size * 3);
+          grad.addColorStop(0, `rgba(99,102,241,${mouseBrightness * 0.5})`);
+          grad.addColorStop(1, 'rgba(99,102,241,0)');
+          ctx.fillStyle = grad;
+          ctx.fill();
+        }
+      }
+      for (let i = 0; i < particles.length; i++) {
+        for (let j = i + 1; j < particles.length; j++) {
+          const dx = particles[i].x - particles[j].x;
+          const dy = particles[i].y - particles[j].y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < CONNECT_DIST) {
+            const minAlpha = Math.min(particles[i].alpha, particles[j].alpha);
+            let lineAlpha = (1 - dist / CONNECT_DIST) * minAlpha * 0.3;
+            const midX = (particles[i].x + particles[j].x) / 2;
+            const midY = (particles[i].y + particles[j].y) / 2;
+            const mouseDist = Math.sqrt((mouseX - midX) ** 2 + (mouseY - midY) ** 2);
+            if (mouseDist < MOUSE_RADIUS) {
+              lineAlpha += (1 - mouseDist / MOUSE_RADIUS) * 0.25;
+            }
+            ctx.beginPath();
+            ctx.moveTo(particles[i].x, particles[i].y);
+            ctx.lineTo(particles[j].x, particles[j].y);
+            ctx.strokeStyle = `rgba(99,102,241,${Math.min(lineAlpha, 0.6)})`;
+            ctx.lineWidth = 0.5;
+            ctx.stroke();
+          }
+        }
+      }
+      requestAnimationFrame(animate);
+    }
+    resize();
+    window.addEventListener('resize', resize);
+    setInterval(spawn, 40);
+    for (let i = 0; i < 150; i++) { spawn(); particles[particles.length - 1].life = Math.floor(Math.random() * 200); }
+    animate();
+  }
+</script>
+
+<!-- Typewriter script -->
+<script define:vars={{ slogans: data.slogans }}>
+  let sloganIndex = 0;
+  let charIndex = 0;
+  let isDeleting = false;
+  const sloganEl = document.getElementById('slogan');
+  function typewriter(): void {
+    if (!sloganEl) return;
+    const current = slogans[sloganIndex];
+    if (!isDeleting) {
+      sloganEl.textContent = current.substring(0, charIndex + 1);
+      charIndex++;
+      if (charIndex === current.length) { isDeleting = true; setTimeout(typewriter, 2000); return; }
+    } else {
+      sloganEl.textContent = current.substring(0, charIndex - 1);
+      charIndex--;
+      if (charIndex === 0) { isDeleting = false; sloganIndex = (sloganIndex + 1) % slogans.length; }
+    }
+    setTimeout(typewriter, isDeleting ? 30 : 80);
+  }
+  typewriter();
+</script>
+
+<!-- Quickstart scroll script -->
+<script>
+  document.getElementById('quickstart-btn')?.addEventListener('click', () => {
+    const target = document.getElementById('quickstart');
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  });
+</script>

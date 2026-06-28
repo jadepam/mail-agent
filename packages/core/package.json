@@ -1,0 +1,39 @@
+{
+  "name": "@mail-agent/core",
+  "version": "0.1.0",
+  "license": "MIT",
+  "author": "jadepam",
+  "description": "Mail Agent Kit 核心包 - 统一数据模型与适配器接口",
+  "type": "module",
+  "main": "./dist/index.mjs",
+  "types": "./dist/index.d.mts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "default": "./dist/index.mjs",
+      "types": "./dist/index.d.mts"
+    }
+  },
+  "scripts": {
+    "build": "tsdown",
+    "dev": "tsdown --watch",
+    "clean": "rm -rf dist",
+    "prepublishOnly": "pnpm run build",
+    "test": "vitest run"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "devDependencies": {
+    "tsdown": "^0.22.0",
+    "typescript": "^5.4.0",
+    "vitest": "^4.1.0"
+  },
+  "files": [
+    "dist"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jadepam/mail-agent.git"
+  }
+}

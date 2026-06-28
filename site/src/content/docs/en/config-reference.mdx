@@ -1,0 +1,96 @@
+---
+title: Config Reference
+description: Mail Agent configuration file structure, field descriptions, and secure storage
+---
+
+## File Locations
+
+```
+~/.mail-agent/
+├── config.yaml          # Non-sensitive config (aliases, types, usernames)
+└── credentials.yaml     # Sensitive data (passwords, auth codes, OAuth2 tokens), permission 600
+```
+
+- `config.yaml`: AI-readable, shows account structure
+- `credentials.yaml`: AI will never read this; contains passwords and OAuth2 tokens
+
+## Environment Variables
+
+| Variable | Description |
+|----------|-------------|
+| `MAIL_AGENT_CONFIG` | Custom config file path (default `~/.mail-agent/config.yaml`) |
+
+## config.yaml Example
+
+```yaml
+mode: ai                      # Optional: ai (skip confirmations) or human (default, requires confirmation)
+
+accounts:
+  - id: "acc_gmail01"
+    alias: "Gmail"
+    provider: gmail
+    user: "me@gmail.com"
+    is_default: true
+
+  - id: "acc_qq01"
+    alias: "QQ邮箱"
+    provider: qq
+    user: "1234@qq.com"
+
+  - id: "acc_agently01"
+    alias: "Agent邮箱"
+    provider: agently
+    user: "me@agent.qq.com"
+
+  - id: "acc_company01"
+    alias: "公司邮箱"
+    provider: smtp-imap
+    network: private
+    user: "me@company.com"
+    smtp:
+      host: mail.company.com
+      port: 465
+    imap:
+      host: mail.company.com
+      port: 993
+```
+
+## credentials.yaml Example
+
+Auto-managed. No manual editing required.
+
+```yaml
+_comment: 'This file contains sensitive credentials. Do not share or commit to version control'
+
+credentials:
+  - id: "acc_qq01"
+    pass: "authorization-code"  # QQ/163/Corporate
+
+  - id: "acc_gmail01"
+    oauth2:                     # Gmail
+      client_id: "xxx"
+      client_secret: "xxx"
+      refresh_token: "1//xxx"
+      access_token: "ya29.xxx"  # Auto-refreshed
+      expires: 1719300000000    # Auto-updated
+```
+
+## Provider Types
+
+| Type | Description |
+|------|-------------|
+| `gmail` | Gmail REST API (OAuth2) |
+| `qq` | QQ Mail (IMAP/SMTP + authorization code) |
+| `163` | 163 Mail (IMAP/SMTP + authorization code) |
+| `agently` | Agently Mail (agently-cli proxy) |
+| `lark` | Lark/Feishu Enterprise Mail (lark-cli proxy) |
+| `smtp-imap` | Generic SMTP/IMAP (corporate mailboxes, etc.) |
+
+## Auth Types
+
+| Type | Applicable Providers |
+|------|---------------------|
+| `oauth2` | Gmail (OAuth2 browser authorization) |
+| `password` | QQ / 163 / Corporate (authorization code or password) |
+| `cli` | Agently Mail (agently-cli proxy auth) / Lark Enterprise Mail (lark-cli proxy auth) |
+| `apikey` | API Key auth (reserved) |

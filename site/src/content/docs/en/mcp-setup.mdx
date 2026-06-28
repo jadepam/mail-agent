@@ -1,0 +1,68 @@
+---
+title: MCP Manual Setup
+description: Add Mail Agent MCP Server to your AI tool with a single command
+---
+
+## Manual MCP Configuration
+
+> ⚠️ **Prerequisite**: Make sure Mail Agent CLI is installed locally and at least one email account is configured. If not, we recommend [Agent Quick Setup](/en/getting-started/#agent-quick-setup) — the Agent auto-installs and configures everything.
+
+### Install CLI
+
+```bash
+npm install -g ma
+ma auth
+```
+
+Verify:
+
+```bash
+ma +me
+```
+
+### One-Command Setup
+
+Choose the command for your AI tool:
+
+#### Claude Code
+
+```bash
+claude mcp add mail-agent -- ma mcp
+```
+
+#### Cursor
+
+Settings → MCP → Add new MCP Server, enter:
+
+- **Command**: `ma`
+- **Args**: `mcp`
+
+#### Windsurf
+
+Settings → MCP Servers → Add, enter:
+
+- **Command**: `ma`
+- **Args**: `mcp`
+
+### Verify
+
+After configuration, try in your AI tool:
+
+> Show me my recent emails
+
+If the AI can call `list_mails` and return results, the setup is successful.
+
+### Available Tools
+
+| Tool | Purpose | Parameters |
+|------|---------|------------|
+| `list_accounts` | List configured email accounts | — |
+| `list_mails` | List emails | folder?, limit?, unread_only?, account_alias? |
+| `read_mail` | Read email | mail_id, account_alias? |
+| `search_mails` | Search emails | query, limit?, account_alias? |
+| `send_mail` | Send email | to, subject, body, cc?, bcc?, account_alias? |
+| `get_thread` | Get email thread | thread_id, account_alias? |
+| `trash_mail` | Delete email | mail_id, account_alias? |
+| `reply_mail` | Reply to email | mail_id, body, reply_all?, cc?, quote_original?, account_alias? |
+| `forward_mail` | Forward email | mail_id, to, body?, include_attachments?, account_alias? |
+| `download_attachment` | Download attachment | mail_id, attachment_name, output_dir?, account_alias? |

@@ -1,0 +1,38 @@
+{
+  "name": "mail-agent",
+  "version": "0.1.0",
+  "private": true,
+  "license": "MIT",
+  "author": "jadepam",
+  "description": "统一邮件 Agent 中间件 - 兼容传统SMTP/IMAP邮箱 + 企业私有化邮箱 + Agent原生邮箱",
+  "scripts": {
+    "prepare": "husky",
+    "build": "pnpm -r run build",
+    "dev": "pnpm -r --parallel run dev",
+    "test": "pnpm -r run build && pnpm -r run test",
+    "test:unit": "pnpm -r run test -- --exclude '**/cli-e2e.test.ts'",
+    "test:e2e": "pnpm --filter @mail-agent/cli run test",
+    "clean": "pnpm -r run clean",
+    "sync-version": "node scripts/sync-version.mjs",
+    "check-version": "node scripts/sync-version.mjs --check",
+    "bump": "node scripts/bump.mjs"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=9.0.0"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^21.1.0",
+    "@commitlint/config-conventional": "^21.1.0",
+    "@types/node": "^26.0.1",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.0.8",
+    "prettier": "^3.8.5",
+    "tsx": "^4.22.4",
+    "vitest": "^4.1.9"
+  },
+  "lint-staged": {
+    "*.{js,ts,mts,mjs,cjs}": "prettier --write",
+    "*.{json,yml,yaml,md}": "prettier --write"
+  }
+}

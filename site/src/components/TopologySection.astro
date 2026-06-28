@@ -1,0 +1,247 @@
+---
+interface Props {
+  locale?: 'zh' | 'en';
+}
+
+const { locale = 'zh' } = Astro.props;
+
+const t = locale === 'zh' ? {
+  generic: { icon: '📧', title: '通用协议邮箱', protocol: 'IMAP / SMTP', providers: ['QQ 邮箱', '163 邮箱', '企业邮'], auth: '授权码认证' },
+  platform: { icon: '🔑', title: '开放平台邮箱', protocol: '官方 API', providers: ['Gmail', '更多接入中'], auth: 'OAuth2 授权' },
+  agent: { icon: '🤖', title: 'Agent 原生邮箱', protocol: 'HTTP API', providers: ['Agently', '更多接入中'], auth: 'Token / CLI' },
+  mailAgentTitle: 'Mail Agent 统一适配层',
+  mailAgentDesc: '直连各类邮箱，统一交互体验',
+  consumerLabel: '你 / AI',
+  consumerDesc: '自然语言 · Agent 驱动',
+} : {
+  generic: { icon: '📧', title: 'Standard Protocol', protocol: 'IMAP / SMTP', providers: ['QQ Mail', '163 Mail', 'Corporate'], auth: 'Auth Code' },
+  platform: { icon: '🔑', title: 'Platform API', protocol: 'Official API', providers: ['Gmail'], auth: 'OAuth2' },
+  agent: { icon: '🤖', title: 'Agent-Native', protocol: 'HTTP API', providers: ['Agently', 'More coming'], auth: 'Token / CLI' },
+  mailAgentTitle: 'Mail Agent Unified Adapter',
+  mailAgentDesc: 'Direct connect, unified experience',
+  consumerLabel: 'You / AI',
+  consumerDesc: 'Natural Language · Agent Driven',
+};
+---
+
+<div class="topo">
+  <!-- Row 1: Source nodes -->
+  <div class="topo-row">
+    <div class="topo-card topo-card--blue">
+      <div class="topo-card__icon">{t.generic.icon}</div>
+      <div class="topo-card__title">{t.generic.title}</div>
+      <div class="topo-card__protocol">{t.generic.protocol}</div>
+      <div class="topo-card__tags">
+        {t.generic.providers.map((p) => <span class="topo-tag topo-tag--blue">{p}</span>)}
+      </div>
+      <div class="topo-card__auth">{t.generic.auth}</div>
+    </div>
+    <div class="topo-card topo-card--purple">
+      <div class="topo-card__icon">{t.platform.icon}</div>
+      <div class="topo-card__title">{t.platform.title}</div>
+      <div class="topo-card__protocol">{t.platform.protocol}</div>
+      <div class="topo-card__tags">
+        {t.platform.providers.map((p) => <span class="topo-tag topo-tag--purple">{p}</span>)}
+      </div>
+      <div class="topo-card__auth">{t.platform.auth}</div>
+    </div>
+    <div class="topo-card topo-card--green">
+      <div class="topo-card__icon">{t.agent.icon}</div>
+      <div class="topo-card__title">{t.agent.title}</div>
+      <div class="topo-card__protocol">{t.agent.protocol}</div>
+      <div class="topo-card__tags">
+        {t.agent.providers.map((p) => <span class="topo-tag topo-tag--green">{p}</span>)}
+      </div>
+      <div class="topo-card__auth">{t.agent.auth}</div>
+    </div>
+  </div>
+
+  <!-- Arrows: sources → Mail Agent -->
+  <div class="topo-arrows">
+    <svg viewBox="0 0 600 48" fill="none" xmlns="http://www.w3.org/2000/svg" class="topo-arrows__svg">
+      <line x1="100" y1="4" x2="300" y2="40" stroke="#3b82f6" stroke-width="2" />
+      <line x1="300" y1="4" x2="300" y2="40" stroke="#8b5cf6" stroke-width="2" />
+      <line x1="500" y1="4" x2="300" y2="40" stroke="#10b981" stroke-width="2" />
+      <polygon points="296,38 304,38 300,46" fill="#6366f1" />
+    </svg>
+  </div>
+
+  <!-- Row 2: Mail Agent -->
+  <div class="topo-row topo-row--center">
+    <div class="topo-mail-agent">
+      <div class="topo-mail-agent__title">{t.mailAgentTitle}</div>
+      <div class="topo-mail-agent__desc">{t.mailAgentDesc}</div>
+    </div>
+  </div>
+
+  <!-- Arrow: Mail Agent → Consumer -->
+  <div class="topo-arrows">
+    <svg viewBox="0 0 600 32" fill="none" xmlns="http://www.w3.org/2000/svg" class="topo-arrows__svg">
+      <line x1="300" y1="2" x2="300" y2="24" stroke="#6366f1" stroke-width="2" />
+      <polygon points="296,22 304,22 300,30" fill="#6366f1" />
+    </svg>
+  </div>
+
+  <!-- Row 3: Consumer -->
+  <div class="topo-row topo-row--center">
+    <div class="topo-consumer">
+      <div class="topo-consumer__label">{t.consumerLabel}</div>
+      <div class="topo-consumer__desc">{t.consumerDesc}</div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .topo {
+    margin: 2rem 0!important;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+  }
+
+  /* Row layout */
+  .topo-row {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .topo-row--center {
+    justify-content: center;
+  }
+
+  /* Reset Starlight markdown spacing on topo children */
+  .topo,
+  .topo > *,
+  .topo-row > * {
+    margin-top: 0;
+  }
+
+  /* Source card */
+  .topo-card {
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    text-align: center;
+    width: 180px;
+    height: 200px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+  }
+  .topo-card--blue {
+    background: rgba(59,130,246,0.08);
+    border: 1px solid rgba(59,130,246,0.3);
+  }
+  .topo-card--purple {
+    background: rgba(139,92,246,0.08);
+    border: 1px solid rgba(139,92,246,0.3);
+  }
+  .topo-card--green {
+    background: rgba(16,185,129,0.08);
+    border: 1px solid rgba(16,185,129,0.3);
+  }
+  .topo-card__icon {
+    font-size: 1.5rem;
+    margin-bottom: 2px;
+  }
+  .topo-card--blue .topo-card__title { color: #60a5fa; }
+  .topo-card--purple .topo-card__title { color: #a78bfa; }
+  .topo-card--green .topo-card__title { color: #34d399; }
+  .topo-card__title {
+    font-weight: 600;
+    font-size: 0.8125rem;
+    line-height: 1.3;
+  }
+  .topo-card__protocol {
+    color: #8b8fa3;
+    font-size: 0.75rem;
+    margin: 4px 0;
+  }
+  .topo-card__tags {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 4px;
+    margin: 4px 0;
+  }
+  .topo-tag {
+    border-radius: 999px;
+    padding: 1px 8px;
+    font-size: 0.6875rem;
+    font-weight: 500;
+  }
+  .topo-tag--blue { background: rgba(59,130,246,0.15); color: #93bbfd; }
+  .topo-tag--purple { background: rgba(139,92,246,0.15); color: #c4b5fd; }
+  .topo-tag--green { background: rgba(16,185,129,0.15); color: #6ee7b7; }
+  .topo-card__auth {
+    font-size: 0.6875rem;
+    margin-top: 4px;
+  }
+  .topo-card--blue .topo-card__auth { color: rgba(96,165,250,0.5); }
+  .topo-card--purple .topo-card__auth { color: rgba(167,139,250,0.5); }
+  .topo-card--green .topo-card__auth { color: rgba(52,211,153,0.5); }
+
+  /* Arrows */
+  .topo-arrows {
+    width: 100%;
+    max-width: 580px;
+    line-height: 0;
+  }
+  .topo-arrows__svg {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  /* Mail Agent node */
+  .topo-mail-agent {
+    background: linear-gradient(135deg, rgba(99,102,241,0.10), rgba(99,102,241,0.20), rgba(99,102,241,0.10));
+    border: 1px solid rgba(99,102,241,0.45);
+    border-radius: 12px;
+    padding: 0.875rem 2.5rem;
+    text-align: center;
+  }
+  .topo-mail-agent__title {
+    color: #a5b4fc;
+    font-weight: 600;
+    font-size: 0.8125rem;
+    letter-spacing: 0.1em;
+  }
+  .topo-mail-agent__desc {
+    color: #8b8fa3;
+    font-size: 0.75rem;
+    margin-top: 2px;
+  }
+
+  /* Consumer node */
+  .topo-consumer {
+    background: rgba(18,18,26,0.9);
+    border: 1px solid rgba(99,102,241,0.3);
+    border-radius: 12px;
+    padding: 0.75rem 1.75rem;
+    text-align: center;
+  }
+  .topo-consumer__label {
+    color: #e4e4e7;
+    font-weight: 600;
+    font-size: 0.8125rem;
+  }
+  .topo-consumer__desc {
+    color: #8b8fa3;
+    font-size: 0.75rem;
+    margin-top: 2px;
+  }
+
+  @media (max-width: 600px) {
+    .topo-card {
+      width: 140px;
+      padding: 0.75rem 0.75rem;
+    }
+    .topo-mail-agent {
+      padding: 0.75rem 1.25rem;
+    }
+  }
+</style>

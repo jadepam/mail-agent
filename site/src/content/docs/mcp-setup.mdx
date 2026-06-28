@@ -1,0 +1,68 @@
+---
+title: MCP 手动配置
+description: 一行命令添加 Mail Agent MCP Server 到 Claude Code / Cursor / Windsurf
+---
+
+## MCP 手动配置
+
+> ⚠️ **前置条件**：请确保已在本地安装 Mail Agent CLI 并配置了邮箱账号。如果尚未安装，推荐使用 [Agent 一键接入](/getting-started/#agent-一键接入)，Agent 会自动完成全部安装和配置。
+
+### 安装 CLI
+
+```bash
+npm install -g ma
+ma auth
+```
+
+验证：
+
+```bash
+ma +me
+```
+
+### 一行命令接入
+
+根据你使用的 AI 工具，选择对应的接入命令：
+
+#### Claude Code
+
+```bash
+claude mcp add mail-agent -- ma mcp
+```
+
+#### Cursor
+
+Settings → MCP → Add new MCP Server，填入：
+
+- **Command**: `ma`
+- **Args**: `mcp`
+
+#### Windsurf
+
+Settings → MCP Servers → Add，填入：
+
+- **Command**: `ma`
+- **Args**: `mcp`
+
+### 验证
+
+配置完成后，在 AI 工具中尝试：
+
+> 帮我查看最近的邮件
+
+如果 AI 能调用 `list_mails` 并返回结果，说明配置成功。
+
+### 可用工具
+
+| 工具名 | 用途 | 参数 |
+|--------|------|------|
+| `list_accounts` | 列出已配置邮箱账号 | — |
+| `list_mails` | 列出邮件 | folder?, limit?, unread_only?, account_alias? |
+| `read_mail` | 读取邮件 | mail_id, account_alias? |
+| `search_mails` | 搜索邮件 | query, limit?, account_alias? |
+| `send_mail` | 发送邮件 | to, subject, body, cc?, bcc?, account_alias? |
+| `get_thread` | 获取邮件会话 | thread_id, account_alias? |
+| `trash_mail` | 删除邮件 | mail_id, account_alias? |
+| `reply_mail` | 回复邮件 | mail_id, body, reply_all?, cc?, quote_original?, account_alias? |
+| `forward_mail` | 转发邮件 | mail_id, to, body?, include_attachments?, account_alias? |
+| `download_attachment` | 下载附件 | mail_id, attachment_name, output_dir?, account_alias? |

@@ -1,0 +1,47 @@
+{
+  "name": "@mail-agent/provider-smtp",
+  "version": "0.1.0",
+  "license": "MIT",
+  "author": "jadepam",
+  "description": "Mail Agent Kit SMTP/IMAP 适配器 - 兼容公网邮箱与企业私有化邮箱",
+  "type": "module",
+  "main": "./dist/index.mjs",
+  "types": "./dist/index.d.mts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "default": "./dist/index.mjs",
+      "types": "./dist/index.d.mts"
+    }
+  },
+  "scripts": {
+    "build": "tsdown",
+    "dev": "tsdown --watch",
+    "clean": "rm -rf dist",
+    "prepublishOnly": "pnpm run build",
+    "test": "vitest run"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@mail-agent/core": "workspace:*",
+    "imapflow": "^1.0.0",
+    "mailparser": "^3.9.11",
+    "nodemailer": "^6.9.0",
+    "uuid": "^10.0.0"
+  },
+  "devDependencies": {
+    "@types/nodemailer": "^6.4.0",
+    "tsdown": "^0.22.0",
+    "typescript": "^5.4.0",
+    "yaml": "^2.4.0"
+  },
+  "files": [
+    "dist"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jadepam/mail-agent.git"
+  }
+}

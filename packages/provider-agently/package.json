@@ -1,0 +1,43 @@
+{
+  "name": "@mail-agent/provider-agently",
+  "version": "0.1.0",
+  "license": "MIT",
+  "author": "jadepam",
+  "description": "Mail Agent Kit Agently Mail 适配器 - 通过 agently-cli 操作 Agent 原生邮箱",
+  "type": "module",
+  "main": "./dist/index.mjs",
+  "types": "./dist/index.d.mts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "default": "./dist/index.mjs",
+      "types": "./dist/index.d.mts"
+    }
+  },
+  "scripts": {
+    "build": "tsdown",
+    "dev": "tsdown --watch",
+    "clean": "rm -rf dist",
+    "prepublishOnly": "pnpm run build",
+    "test": "vitest run"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@mail-agent/core": "workspace:*",
+    "uuid": "^10.0.0"
+  },
+  "devDependencies": {
+    "tsdown": "^0.22.0",
+    "typescript": "^5.4.0",
+    "vitest": "^4.1.0"
+  },
+  "files": [
+    "dist"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jadepam/mail-agent.git"
+  }
+}

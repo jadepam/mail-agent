@@ -1,0 +1,96 @@
+---
+title: 配置文件参考
+description: Mail Agent 配置文件结构、字段说明与安全存储
+---
+
+## 文件位置
+
+```
+~/.mail-agent/
+├── config.yaml          # 非敏感配置（别名、邮箱类型、用户名等）
+└── credentials.yaml     # 敏感信息（密码、授权码、OAuth2 Token），权限 600
+```
+
+- `config.yaml`：AI 可读取，了解账号结构
+- `credentials.yaml`：AI 不会读取，包含密码和 OAuth2 Token
+
+## 环境变量
+
+| 变量 | 说明 |
+|------|------|
+| `MAIL_AGENT_CONFIG` | 自定义配置文件路径（默认 `~/.mail-agent/config.yaml`） |
+
+## config.yaml 示例
+
+```yaml
+mode: ai                      # 可选：ai（跳过确认）或 human（默认，需二次确认）
+
+accounts:
+  - id: "acc_gmail01"
+    alias: "Gmail"
+    provider: gmail
+    user: "me@gmail.com"
+    is_default: true
+
+  - id: "acc_qq01"
+    alias: "QQ邮箱"
+    provider: qq
+    user: "12345@qq.com"
+
+  - id: "acc_agently01"
+    alias: "Agent邮箱"
+    provider: agently
+    user: "me@agent.qq.com"
+
+  - id: "acc_company01"
+    alias: "公司邮箱"
+    provider: smtp-imap
+    network: private
+    user: "me@company.com"
+    smtp:
+      host: mail.company.com
+      port: 465
+    imap:
+      host: mail.company.com
+      port: 993
+```
+
+## credentials.yaml 示例
+
+自动管理，无需手动编辑。
+
+```yaml
+_comment: '此文件包含敏感凭据，请勿分享或提交到版本控制'
+
+credentials:
+  - id: "acc_qq01"
+    pass: "授权码"              # QQ/163/企业邮箱
+
+  - id: "acc_gmail01"
+    oauth2:                     # Gmail
+      client_id: "xxx"
+      client_secret: "xxx"
+      refresh_token: "1//xxx"
+      access_token: "ya29.xxx"  # 自动刷新
+      expires: 1719300000000    # 自动更新
+```
+
+## Provider 类型
+
+| 类型值 | 说明 |
+|--------|------|
+| `gmail` | Gmail REST API（OAuth2） |
+| `qq` | QQ 邮箱（IMAP/SMTP + 授权码） |
+| `163` | 163 邮箱（IMAP/SMTP + 授权码） |
+| `agently` | Agently Mail（agently-cli 代理） |
+| `lark` | 飞书企业邮箱（lark-cli 代理） |
+| `smtp-imap` | 通用 SMTP/IMAP（企业自建邮箱等） |
+
+## 认证类型
+
+| 类型 | 适用邮箱 |
+|------|----------|
+| `oauth2` | Gmail（OAuth2 浏览器授权） |
+| `password` | QQ / 163 / 企业邮箱（授权码或密码） |
+| `cli` | Agently Mail（agently-cli 代理认证）/ 飞书企业邮箱（lark-cli 代理认证） |
+| `apikey` | API Key 认证（预留） |

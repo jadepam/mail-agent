@@ -1,0 +1,322 @@
+---
+title: CLI Reference
+description: Complete ma CLI commands and parameters, for humans and AI
+---
+
+## Quick Start
+
+After installation, try these commands in your terminal to experience Mail Agent's core features:
+
+**1. View configured accounts**
+
+```bash
+ma +me
+```
+
+Example output:
+
+```
+┌──────────┬──────────┬──────────────────────┬──────────┐
+│  Alias   │   Type   │       Address        │   Auth   │
+├──────────┼──────────┼──────────────────────┼──────────┤
+│ Gmail    │ gmail    │ me@gmail.com         │ OAuth2   │
+│ QQ Mail  │ qq       │ 1234@qq.com          │ Pass     │
+│ Agent    │ agently  │ me@agent.qq.com      │ agently  │
+│ Lark     │ lark     │ me@company.com       │ lark-cli │
+└──────────┴──────────┴──────────────────────┴──────────┘
+```
+
+**2. List recent emails**
+
+```bash
+ma list -n 3
+```
+
+Example output:
+
+```
+📬 Agent / INBOX — 3 emails
+
+  ● Alice — Meeting Notice      2026-06-25
+  ★ Bob — Q3 Report             2026-06-24
+  🤖 Agent — Task Complete       2026-06-24
+```
+
+**3. Send email**
+
+```bash
+ma send -t alice@example.com -s "Re: Meeting Notice" -b "Got it"
+```
+
+Example output:
+
+```
+✅ Email sent
+  → alice@example.com
+  Subject: Re: Meeting Notice
+```
+
+## Global Rules
+
+- All commands support `--json` for structured output (AI should always use `--json`)
+- `--account <alias>` specifies the email account; defaults to the default account
+- `--account` takes an **alias** (e.g. `Gmail`), not an email address
+
+## Human Mode / AI Mode
+
+ma CLI supports **Human Mode** and **AI Mode**, controlling whether destructive operations (send, reply, forward, trash) require confirmation.
+
+| Mode | Confirmation | Use Case |
+|------|-------------|----------|
+| Human (default) | Interactive confirmation before destructive ops | Human terminal use |
+| AI | Skip all confirmations, execute directly | AI Agent automation, scripts |
+
+**Mode Resolution Priority** (high → low):
+
+1. `--json` — Implicitly AI mode (structured output consumed by programs)
+2. `-y, --yes` — Explicitly skip confirmation
+3. `mode: ai` in `config.yaml` — Persistent AI mode
+4. Default — Human mode
+
+**Usage Examples**:
+
+```bash
+# Human mode: confirmation prompt before sending
+ma send -t bob@x.com -s "Notice" -b "Content"
+
+# AI mode: skip confirmation, send directly
+ma send -t bob@x.com -s "Notice" -b "Content" -y
+
+# --json implicitly enables AI mode (no -y needed)
+ma send -t bob@x.com -s "Notice" -b "Content" --json
+
+# Persistent AI mode: set mode: ai in config.yaml
+```
+
+> MCP Server mode is inherently AI mode — no additional configuration needed.
+
+## Email Operations
+
+### ma list — List Emails
+
+Returns a summary list, **without body**. Use the returned `id` with `read` for full content.
+
+```bash
+ma list                          # Default account, INBOX, latest 20
+ma list -n 5                     # Latest 5
+ma list --unread                 # Unread only
+ma list --account "QQ邮箱"       # Specify account
+ma list -n 10 --unread --json    # Combined
+```
+
+| Option | Description |
+|--------|-------------|
+| `-f, --folder <name>` | Folder (default INBOX) |
+| `-n, --limit <number>` | Number of results (default 20) |
+| `--unread` | Unread only |
+| `--account <alias>` | Email account alias |
+| `--json` | JSON output |
+
+### ma read — Read Email
+
+Read full email content including body and attachments.
+
+```bash
+ma read <mail-id> --json
+ma read <mail-id> --account "Gmail" --json
+```
+
+| Option | Description |
+|--------|-------------|
+| `<mail-id>` | Email ID (from `list` or `search`, must be passed verbatim) |
+| `--account <alias>` | Email account alias |
+| `--json` | JSON output |
+
+> ⚠️ `mail-id` must be passed verbatim — never truncate or modify it.
+
+### ma search — Search Emails
+
+Search email subjects and bodies by keyword.
+
+```bash
+ma search "reimbursement" --json
+ma search "report" -n 5 --json
+ma search "meeting" --account "Company" --json
+```
+
+| Option | Description |
+|--------|-------------|
+| `<query>` | Search keyword |
+| `-n, --limit <number>` | Number of results (default 20) |
+| `-f, --folder <name>` | Folder filter |
+| `--from <sender>` | Sender filter |
+| `--unread` | Unread only |
+| `--account <alias>` | Email account alias |
+| `--json` | JSON output |
+
+> ⚠️ 163 mailbox Chinese search may return empty results. Use English keywords or `list` + client-side filtering.
+
+### ma send — Send Email
+
+```bash
+ma send -t x@x.com -s "Subject" -b "Body"
+ma send -t a@x.com,b@x.com -s "Report" -b "See attachment" --account "Company"
+ma send -t alice@example.com -s "Notice" -b "Content" -c "boss@example.com"
+ma send -t bob@x.com -s "Report" -b "See attachment" --attach ./report.pdf
+```
+
+| Option | Description |
+|--------|-------------|
+| `-t, --to <addresses>` | Recipients (comma-separated) |
+| `-s, --subject <subject>` | Subject |
+| `-b, --body <body>` | Body |
+| `-c, --cc <addresses>` | CC |
+| `--bcc <addresses>` | BCC |
+| `--attach <files...>` | Attachment file paths (repeatable) |
+| `--in-reply-to <message-id>` | Message ID being replied to |
+| `--account <alias>` | Email account alias |
+| `-y, --yes` | Skip confirmation (AI mode) |
+
+**Reply workflow**:
+1. `ma read <id> --json` → Get sender address and subject
+2. `ma reply <id> -b "Reply content"` — or use `ma send -t "sender" -s "Re: Subject" -b "Reply"`
+
+### ma reply — Reply to Email
+
+Auto-fills recipient, subject (Re: prefix), and quotes original.
+
+```bash
+ma reply <mail-id> -b "Received, thanks"              # Reply to sender
+ma reply <mail-id> -b "Received" --reply-all           # Reply all
+ma reply <mail-id> -b "Received" --no-quote            # Without quoting
+ma reply <mail-id> -b "Body" --cc "a@x.com"            # Add CC
+```
+
+| Option | Description |
+|--------|-------------|
+| `-b, --body <body>` | Reply body |
+| `--reply-all` | Reply all (recipients + CC) |
+| `--cc <addresses>` | Additional CC |
+| `--no-quote` | Don't quote original |
+| `--account <alias>` | Email account alias |
+| `--json` | JSON output |
+| `-y, --yes` | Skip confirmation (AI mode) |
+
+### ma forward — Forward Email
+
+Auto-adds Fwd: prefix and forwards original.
+
+```bash
+ma forward <mail-id> -t bob@x.com               # Forward email
+ma forward <mail-id> -t bob@x.com -b "Please review"  # With note
+ma forward <mail-id> -t bob@x.com --include-attachments  # Include attachments
+```
+
+| Option | Description |
+|--------|-------------|
+| `-t, --to <addresses>` | Forward recipients (comma-separated) |
+| `-b, --body <body>` | Forward note |
+| `--include-attachments` | Include original attachments |
+| `--account <alias>` | Email account alias |
+| `--json` | JSON output |
+| `-y, --yes` | Skip confirmation (AI mode) |
+
+### ma trash — Delete Email
+
+Move email to trash (soft delete).
+
+```bash
+ma trash <mail-id>                 # Delete from default account
+ma trash <mail-id> --account "Gmail"  # Delete from specific account
+```
+
+| Option | Description |
+|--------|-------------|
+| `<mail-id>` | Email ID |
+| `--account <alias>` | Email account alias |
+| `--json` | JSON output |
+| `-y, --yes` | Skip confirmation (AI mode) |
+
+### ma download — Download Attachment
+
+Download email attachments to local storage.
+
+```bash
+ma download <mail-id> --att report.pdf              # Download specific attachment
+ma download <mail-id> --att report.pdf -o ~/Downloads  # Specify output directory
+ma download <mail-id> --all                        # Download all attachments
+```
+
+| Option | Description |
+|--------|-------------|
+| `--att <filename>` | Attachment name |
+| `--all` | Download all attachments |
+| `-o, --output <dir>` | Output directory (default: current) |
+| `--account <alias>` | Email account alias |
+| `--json` | JSON output |
+
+### ma thread — View Thread
+
+View all emails in a conversation thread. **Native support for Gmail and Lark/Feishu**.
+
+```bash
+ma thread <thread-id> --json
+```
+
+## Account Management
+
+### ma +me — View Accounts
+
+List all configured email accounts with alias, type, auth method, and default flag.
+
+```bash
+ma +me
+ma +me --json
+```
+
+### ma account — Manage Accounts
+
+```bash
+ma account add               # Interactive setup
+ma account list              # List all accounts
+ma account remove <alias>    # Delete account
+ma account rename <alias> <new-alias>  # Rename
+ma account test <alias>      # Test connection
+ma account set-default <alias>  # Set default
+```
+
+### ma init — Initialize
+
+Run on first use. Auto-scans local accounts (e.g. agently-cli) and guides setup. Prompts for run mode (Human / AI) during initialization.
+
+```bash
+ma init
+```
+
+### ma mode — Switch Run Mode
+
+View or switch between Human Mode / AI Mode.
+
+```bash
+ma mode            # View current mode
+ma mode ai         # Switch to AI mode (skip confirmations, for automation)
+ma mode human      # Switch to human mode (confirm before destructive ops)
+```
+
+## MCP Mode
+
+Start as MCP Server (stdio transport) for AI tool integration.
+
+```bash
+ma mcp
+```
+
+## Known Limitations
+
+| Limitation | Workaround |
+|------------|------------|
+| 163 mailbox Chinese search returns empty | Use English keywords or `list` + client-side filtering |
+| 163 mailbox does not allow sending to self | 163 server-side restriction, no workaround |
+| Gmail requires proxy in restricted regions | Configure HTTP proxy or VPN |
+| QQ IMAP doesn't support HEADER Message-ID search | Use UID from `list` for `read` |
+| Agently search capability is limited | Use `list` to browse emails |

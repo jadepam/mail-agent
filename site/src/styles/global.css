@@ -1,0 +1,329 @@
+/* ===== Mail Agent Site — Tailwind v4 + Custom Styles ===== */
+
+@import "tailwindcss/theme" layer(theme);
+@import "tailwindcss/utilities" layer(utilities);
+
+/* ===== Custom Theme ===== */
+@theme {
+  --color-bg: #0a0a0f;
+  --color-bg-card: #12121a;
+  --color-border: #1e1e2e;
+  --color-text: #e4e4e7;
+  --color-text-muted: #71717a;
+  --color-accent: #6366f1;
+  --color-accent-glow: rgba(99, 102, 241, 0.3);
+  --color-human: #3b82f6;
+  --color-api: #8b5cf6;
+  --color-agent: #10b981;
+}
+
+/* ===== Base ===== */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/* ===== Animations ===== */
+@keyframes flow-down {
+  0% { transform: translateY(-8px); opacity: 0; }
+  50% { opacity: 1; }
+  100% { transform: translateY(8px); opacity: 0; }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+@keyframes typewriter-cursor {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.animate-flow { animation: flow-down 2s ease-in-out infinite; }
+.animate-pulse-glow { animation: pulse-glow 3s ease-in-out infinite; }
+.animate-float { animation: float 4s ease-in-out infinite; }
+.cursor-blink { animation: typewriter-cursor 1s step-end infinite; }
+
+/* ===== Hero ===== */
+.hero-section {
+  position: relative;
+}
+
+.hero-title {
+  background: linear-gradient(135deg, #e4e4e7 0%, #a5b4fc 40%, #818cf8 60%, #c4b5fd 100%);
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: hero-gradient 6s ease-in-out infinite;
+  position: relative;
+}
+
+/* Scanning light sweep across title */
+.hero-title::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(165,180,252,0.3) 45%, rgba(165,180,252,0.6) 50%, rgba(165,180,252,0.3) 55%, transparent 100%);
+  background-size: 300% 100%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: hero-scan 3s ease-in-out infinite;
+}
+
+.hero-desc {
+  color: #8b8fa3;
+  letter-spacing: 0.02em;
+}
+
+.hero-logo {
+  animation: hero-float 3s ease-in-out infinite;
+  filter: drop-shadow(0 0 20px rgba(99, 102, 241, 0.4));
+}
+
+.hero-geo-left {
+  animation: hero-rotate-slow 20s linear infinite;
+}
+
+.hero-geo-right {
+  animation: hero-rotate-slow 15s linear infinite reverse;
+}
+
+.hero-circuit {
+  animation: hero-circuit-pulse 4s ease-in-out infinite;
+}
+
+@keyframes hero-gradient {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+@keyframes hero-scan {
+  0% { background-position: 200% 0; }
+  100% { background-position: -100% 0; }
+}
+
+@keyframes hero-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+@keyframes hero-rotate-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes hero-circuit-pulse {
+  0%, 100% { opacity: 0.08; }
+  50% { opacity: 0.15; }
+}
+
+/* ===== Terminal ===== */
+.terminal {
+  background: #0d1117;
+  border: 1px solid #21262d;
+  border-radius: 12px;
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  display: flex;
+  flex-direction: column;
+}
+
+.terminal-header {
+  display: flex;
+  gap: 6px;
+  padding: 12px 16px;
+  border-bottom: 1px solid #21262d;
+}
+
+.terminal-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+.terminal-body {
+  padding: 16px 20px;
+  overflow-x: auto;
+  overflow-y: auto;
+  flex: 1;
+}
+
+/* ===== Feature Card ===== */
+.feature-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.feature-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 30px var(--color-accent-glow);
+}
+
+/* ===== Claude Code Terminal ===== */
+.claude-terminal {
+  background: #0d1117;
+  border: 1px solid #21262d;
+  border-radius: 12px;
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-size: 0.8125rem;
+  line-height: 1.7;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.claude-terminal-header {
+  display: flex;
+  gap: 6px;
+  padding: 10px 16px;
+  border-bottom: 1px solid #21262d;
+  align-items: center;
+}
+
+.claude-terminal-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+.claude-terminal-body {
+  padding: 16px 20px;
+  overflow-x: auto;
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+}
+
+/* Terminal header: icon + text */
+.claude-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.claude-header-icon {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+}
+
+.claude-header-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.claude-header-title {
+  color: #f5f5f4;
+  font-weight: 600;
+  font-size: 0.875rem;
+  line-height: 1.3;
+}
+
+.claude-header-version {
+  color: #a8a29e;
+  font-weight: 400;
+}
+
+.claude-header-meta {
+  color: #78716c;
+  font-size: 0.75rem;
+  line-height: 1.3;
+}
+
+/* User input line */
+.claude-user-input {
+  color: #fdba74;
+  margin-bottom: 2px;
+}
+
+.claude-user-prompt {
+  color: #fdba74;
+  margin-right: 6px;
+  font-weight: 600;
+}
+
+/* Tool call line */
+.claude-tool-call {
+  color: #a5b4fc;
+  margin-left: 0;
+  margin-bottom: 1px;
+}
+
+.claude-tool-marker {
+  color: #818cf8;
+  margin-right: 4px;
+}
+
+.claude-tool-name {
+  color: #a5b4fc;
+  font-weight: 500;
+}
+
+.claude-tool-args {
+  color: #9ca3af;
+}
+
+.claude-tool-annotation {
+  color: #6b7280;
+  margin-left: 8px;
+  font-size: 0.75rem;
+}
+
+/* CLI output line */
+.claude-cli-output {
+  color: #d1d5db;
+  margin-left: 16px;
+  margin-bottom: 1px;
+}
+
+/* Agent reply */
+.claude-agent-reply {
+  color: #34d399;
+  margin-top: 4px;
+  margin-bottom: 8px;
+}
+
+/* Mail list in terminal */
+.claude-mail-list-header {
+  color: #a5b4fc;
+  margin-bottom: 2px;
+}
+
+.claude-mail-item {
+  color: #d1d5db;
+  margin-left: 16px;
+  margin-bottom: 1px;
+}
+
+.claude-mail-unread {
+  color: #fbbf24;
+}
+
+.claude-mail-date {
+  color: #6b7280;
+  margin-left: 8px;
+}
+
+/* Step separator */
+.claude-step {
+  margin-bottom: 4px;
+}
+
+.claude-step + .claude-step {
+  margin-top: 12px;
+}

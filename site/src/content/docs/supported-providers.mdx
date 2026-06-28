@@ -1,0 +1,107 @@
+---
+title: 支持的邮箱
+description: Mail Agent 支持的全部邮箱类型、协议与认证方式
+---
+
+## 按开放程度分类
+
+### 通用协议邮箱
+
+厂商开放 IMAP/SMTP 标准协议，不关心谁在连。使用授权码或密码认证。
+
+| 邮箱 | SMTP | IMAP | 认证 |
+|------|------|------|------|
+| QQ 邮箱 | smtp.qq.com:465 (SSL) | imap.qq.com:993 (TLS) | 授权码 |
+| 163 邮箱 | smtp.163.com:465 (SSL) | imap.163.com:993 (TLS) | 授权码 |
+| 企业自建邮 | 自定义 | 自定义 | 密码（支持自签名证书） |
+
+**QQ 邮箱授权码获取**：QQ 邮箱 → 设置 → 账户 → 生成授权码
+
+**163 邮箱授权码获取**：163 邮箱 → 设置 → POP3/SMTP/IMAP → 开启并获取授权码
+
+### 开放平台邮箱
+
+传统邮箱厂商开放官方 API，需要完成 OAuth2 授权。Token 自动刷新。
+
+| 邮箱 | 接口 | 认证 |
+|------|------|------|
+| Gmail | Gmail REST API | OAuth2（浏览器授权） |
+| 飞书企业邮箱 | Mail Open API (via lark-cli) | lark-cli OAuth |
+
+**Gmail OAuth2 配置**：
+
+1. 前往 [Google Cloud Console](https://console.cloud.google.com/) 创建项目
+2. 启用 Gmail API
+3. 创建 OAuth2 凭据（桌面应用类型）
+4. 运行 `ma account add`，选择 Gmail，浏览器自动打开授权页面
+5. 授权完成后 Token 自动保存和刷新
+
+> ⚠️ Gmail REST API 需要直连 Google 服务器，大陆网络需配置代理。
+
+**飞书企业邮箱配置**：
+
+1. 安装 lark-cli（飞书官方 CLI 工具）
+2. 运行 `lark-cli auth login` 完成企业认证
+3. 运行 `ma account add`，选择飞书企业邮箱，自动检测本地 lark-cli 登录状态
+
+> 💡 飞书企业邮箱本质是传统企业邮箱，通过 lark-cli 封装 Mail Open API 接入 Mail Agent。相比 IMAP/SMTP 方式，API 接入更稳定，原生支持会话线程和附件管理。
+
+### Agent 原生邮箱
+
+天生为 AI 设计的邮箱，API 优先，CLI 认证。
+
+| 邮箱 | 接口 | 认证 |
+|------|------|------|
+| Agently Mail | HTTP API (via agently-cli) | agently-cli OAuth |
+
+**Agently Mail 配置**：
+
+1. 安装 [agently-cli](https://agent.qq.com)
+2. 运行 `agently login` 完成认证
+3. 运行 `ma account add`，选择 Agently，自动检测本地 agently-cli 登录状态
+
+## 添加邮箱账号
+
+```bash
+ma account add
+```
+
+交互式引导，自动检测本地 agently-cli 和 lark-cli 登录状态，支持所有邮箱类型。
+
+## 功能兼容性
+
+各邮箱的功能支持情况（v0.3.0 实测）：
+
+| 功能 | QQ 邮箱 | 163 邮箱 | Gmail | Agently | 飞书企业邮箱 |
+|------|---------|----------|-------|---------|-------------|
+| 账号连接 | ✅ SMTP + IMAP | ✅ SMTP + IMAP | ✅ API + OAuth2 | ✅ CLI 连接 | ✅ CLI 连接 |
+| list | ✅ | ✅ | ✅ | ✅ | ✅ |
+| read | ✅ | ✅ | ✅ | ✅ | ✅ |
+| search | ✅ | ⚠️ 中文搜索无效 | ✅ | ❌ 搜索能力有限 | ✅ |
+| send | ✅ | ✅ | ✅ | ✅ | ✅ |
+| send + 附件 | ✅ | ✅ | ✅ | ✅ | ✅ |
+| reply | ✅ | ✅ | ✅ | ✅ | ✅ |
+| forward | — | ✅ | ✅ | ✅ | ✅ |
+| download 附件 | ✅ | ✅ | ✅ | ✅ | ✅ |
+| trash | ✅ | ✅ | ✅ | ✅ | ✅ |
+| thread | ✅ L1 (References) | —（无回复链） | ✅ 原生 threadId | ❌ 不支持 | ✅ 原生线程 |
+
+> ⚠️ "—" 表示该组合尚未测试，不代表不支持。标记 ❌ 的功能受限于邮箱服务端能力。
+
+## 已知限制
+
+| 限制 | 变通方案 |
+|------|----------|
+| 163 邮箱中文 IMAP SEARCH 无效 | 用英文关键词搜索，或先 `list` 再客户端过滤 |
+| 163 邮箱不允许给自己发邮件 | 163 服务端限制，无法绕过 |
+| Gmail 需要代理环境 | 配置 HTTP 代理或 VPN |
+| QQ 邮箱 IMAP 不支持 HEADER Message-ID 搜索 | 使用 `list` 返回的 UID 调用 `read` |
+| Agently 搜索能力有限 | 使用 `list` 浏览邮件 |
+
+## 测试连接
+
+```bash
+ma account test <别名>
+```
+
+验证邮箱连接是否正常，显示延迟和状态。

@@ -1,0 +1,218 @@
+/* Mail Agent Starlight custom styles */
+
+/* Force dark theme only — hide the theme picker */
+starlight-theme-select,
+.sl-theme-select,
+select[aria-label="Select theme"] {
+  display: none !important;
+}
+
+/* Accent color overrides to match Mail Agent brand */
+:root {
+  --sl-color-accent: #6366f1;
+  --sl-color-accent-high: #818cf8;
+  --sl-color-accent-low: rgba(99, 102, 241, 0.15);
+}
+
+/* ===== Sidebar ===== */
+
+.sl-sidebar {
+  background: #0a0a0f;
+  border-right-color: #1e1e2e;
+}
+
+/* Sidebar links — default muted */
+.sl-sidebar a {
+  color: #8b8fa3;
+}
+
+/* Sidebar active page link — white text + indigo highlight */
+.sl-sidebar a[aria-current="page"]{
+  color: var(--sl-color-white) ;
+  background: var(--sl-color-accent-low);
+  border-radius: 0.25rem;
+}
+sl-sidebar-state-persist .top-level a[aria-current="page"] {
+  color: var(--sl-color-white) !important;
+}
+
+/* Sidebar group titles (in <summary>) — always white */
+.sl-sidebar summary .group-label,
+.sl-sidebar summary .large,
+.sl-sidebar summary:hover .group-label,
+.sl-sidebar summary:hover .large,
+.sl-sidebar summary:focus .group-label,
+.sl-sidebar summary:focus .large,
+.sl-sidebar summary:focus-visible .group-label,
+.sl-sidebar summary:focus-visible .large {
+  color: var(--sl-color-white) !important;
+}
+
+/* Sidebar link hover/focus — brighten to white */
+.sl-sidebar a:hover,
+.sl-sidebar a:focus {
+  color: var(--sl-color-white) !important;
+}
+
+/* Sidebar scrollbar */
+.sl-sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sl-sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sl-sidebar::-webkit-scrollbar-thumb {
+  background: rgba(99, 102, 241, 0.2);
+  border-radius: 3px;
+}
+
+.sl-sidebar::-webkit-scrollbar-thumb:hover {
+  background: rgba(99, 102, 241, 0.4);
+}
+
+/* ===== Top navbar ===== */
+
+.sl-navbar {
+  background: rgba(10, 10, 15, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom-color: #1e1e2e;
+}
+
+/* ===== Content area ===== */
+
+.sl-content {
+  background: #0a0a0f;
+}
+
+/* Typography — Inter font */
+.sl-content h1,
+.sl-content h2,
+.sl-content h3,
+.sl-content h4,
+.sl-content h5,
+.sl-content h6 {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  color: #e4e4e7;
+}
+
+.sl-content p,
+.sl-content li,
+.sl-content td,
+.sl-content th {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/* Links — indigo accent */
+.sl-content a {
+  color: #818cf8;
+  text-decoration-color: rgba(129, 140, 248, 0.3);
+}
+
+.sl-content a:hover {
+  color: #a5b4fc;
+  text-decoration-color: rgba(165, 180, 252, 0.5);
+}
+
+/* Code blocks — JetBrains Mono + dark bg */
+.sl-content code {
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-size: 0.875em;
+}
+
+.sl-content pre {
+  background: #0d1117;
+  border: 1px solid #21262d;
+  border-radius: 8px;
+}
+
+.sl-content pre code {
+  color: #e4e4e7;
+}
+
+/* Inline code */
+.sl-content :not(pre) > code {
+  background: rgba(99, 102, 241, 0.1);
+  border: 1px solid rgba(99, 102, 241, 0.15);
+  border-radius: 4px;
+  padding: 0.1em 0.35em;
+  color: #a5b4fc;
+}
+
+/* Tables */
+.sl-content table {
+  border-collapse: collapse;
+}
+
+.sl-content th {
+  background: rgba(99, 102, 241, 0.05);
+  color: #a5b4fc;
+  border-bottom-color: #1e1e2e;
+}
+
+.sl-content td {
+  border-bottom-color: #1e1e2e;
+}
+
+/* Callouts / Asides */
+.sl-content aside {
+  border-color: rgba(99, 102, 241, 0.3);
+  background: rgba(99, 102, 241, 0.05);
+}
+
+/* Blockquotes */
+.sl-content blockquote {
+  border-left-color: #6366f1;
+  color: #8b8fa3;
+}
+
+/* Horizontal rules */
+.sl-content hr {
+  border-color: #1e1e2e;
+}
+
+/* ===== Footer ===== */
+
+.sl-footer {
+  border-top-color: #1e1e2e;
+}
+
+/* ===== Search ===== */
+
+[data-overlay] {
+  background: #0a0a0f !important;
+  border: 1px solid #1e1e2e;
+}
+
+/* ===== Language select ===== */
+
+.sl-language-select {
+  color: #8b8fa3;
+}
+
+starlight-lang-select select:focus,
+starlight-lang-select label:focus-within {
+  outline: none;
+}
+
+/* ===== Breadcrumbs ===== */
+
+.sl-breadcrumb {
+  color: #71717a;
+}
+
+/* ===== Right sidebar / TOC ===== */
+
+.sl-toc a {
+  color: #71717a;
+}
+
+.sl-toc a[aria-current="true"] {
+  color: var(--sl-color-white)!important;
+}
+
+/* .sl-toc a[aria-current="true"] {
+  color: #a5b4fc;
+} */

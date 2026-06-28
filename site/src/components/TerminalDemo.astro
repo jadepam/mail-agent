@@ -1,0 +1,151 @@
+---
+// Interactive terminal demo with typing animation
+// Supports locale prop for bilingual output
+import type { Locale } from '../data/site-data';
+
+interface Props { locale?: Locale }
+const { locale = 'zh' } = Astro.props;
+const isZh = locale === 'zh';
+
+// Localized terminal content
+const termLabel = isZh ? '邮箱' : 'Email';
+const cmd1 = 'ma +me';
+const cmd2 = isZh ? 'ma list -n 3' : 'ma list -n 3';
+const cmd3 = isZh
+  ? 'ma send -t zhangsan@example.com -s "Re: 会议通知" -b "收到"'
+  : 'ma send -t alice@example.com -s "Re: Meeting Notice" -b "Got it"';
+
+// Table headers
+const hAlias = isZh ? '别名' : 'Alias';
+const hType = isZh ? '类型' : 'Type';
+const hAddr = isZh ? '邮箱地址' : 'Address';
+const hAuth = isZh ? '认证方式' : 'Auth';
+
+// Output lines for step 3
+const sentLabel = isZh ? '邮件已发送' : 'Email sent';
+const toLabel = isZh ? '主题' : 'Subject';
+---
+
+<div class="terminal mx-auto w-full min-h-[340px] max-h-[520px]">
+  <div class="terminal-header">
+    <div class="terminal-dot bg-red-500"></div>
+    <div class="terminal-dot bg-yellow-500"></div>
+    <div class="terminal-dot bg-green-500"></div>
+    <span class="ml-2 text-xs text-gray-500">ma</span>
+  </div>
+  <div class="terminal-body overflow-y-auto" id="terminal-demo">
+    <div class="space-y-4">
+      <!-- Step 1: +me -->
+      <div class="demo-step" data-delay="0">
+        <div class="flex items-center gap-2">
+          <span class="text-emerald-400">$</span>
+          <span class="text-white" id="cmd-1"></span>
+          <span class="cursor-blink text-white">▋</span>
+        </div>
+        <div class="mt-2 hidden" id="output-1">
+          {isZh ? (
+            <pre class="text-xs leading-relaxed text-gray-300"><span class="text-gray-500">┌────────────┬──────────┬──────────────────────┬──────────┐</span>
+<span class="text-gray-500">│</span> <span class="text-cyan-400">别名</span>       <span class="text-gray-500">│</span> <span class="text-cyan-400">类型</span>     <span class="text-gray-500">│</span> <span class="text-cyan-400">邮箱地址</span>             <span class="text-gray-500">│</span> <span class="text-cyan-400">认证方式</span> <span class="text-gray-500">│</span>
+<span class="text-gray-500">├────────────┼──────────┼──────────────────────┼──────────┤</span>
+<span class="text-gray-500">│</span> Gmail      <span class="text-gray-500">│</span> gmail    <span class="text-gray-500">│</span> me@gmail.com         <span class="text-gray-500">│</span> OAuth2   <span class="text-gray-500">│</span>
+<span class="text-gray-500">│</span> QQ邮箱     <span class="text-gray-500">│</span> qq       <span class="text-gray-500">│</span> 1234@qq.com          <span class="text-gray-500">│</span> 密码     <span class="text-gray-500">│</span>
+<span class="text-gray-500">│</span> Agent邮箱  <span class="text-gray-500">│</span> agently  <span class="text-gray-500">│</span> me@agent.qq.com      <span class="text-gray-500">│</span> agently  <span class="text-gray-500">│</span>
+<span class="text-gray-500">└────────────┴──────────┴──────────────────────┴──────────┘</span></pre>
+          ) : (
+            <pre class="text-xs leading-relaxed text-gray-300"><span class="text-gray-500">┌──────────┬──────────┬──────────────────────┬──────────┐</span>
+<span class="text-gray-500">│</span> <span class="text-cyan-400">Alias</span>    <span class="text-gray-500">│</span> <span class="text-cyan-400">Type</span>     <span class="text-gray-500">│</span> <span class="text-cyan-400">Address</span>              <span class="text-gray-500">│</span> <span class="text-cyan-400">Auth</span>     <span class="text-gray-500">│</span>
+<span class="text-gray-500">├──────────┼──────────┼──────────────────────┼──────────┤</span>
+<span class="text-gray-500">│</span> Gmail    <span class="text-gray-500">│</span> gmail    <span class="text-gray-500">│</span> me@gmail.com         <span class="text-gray-500">│</span> OAuth2   <span class="text-gray-500">│</span>
+<span class="text-gray-500">│</span> QQ Mail  <span class="text-gray-500">│</span> qq       <span class="text-gray-500">│</span> 1234@qq.com          <span class="text-gray-500">│</span> Pass     <span class="text-gray-500">│</span>
+<span class="text-gray-500">│</span> Agent    <span class="text-gray-500">│</span> agently  <span class="text-gray-500">│</span> me@agent.qq.com      <span class="text-gray-500">│</span> agently  <span class="text-gray-500">│</span>
+<span class="text-gray-500">└──────────┴──────────┴──────────────────────┴──────────┘</span></pre>
+          )}
+        </div>
+      </div>
+
+      <!-- Step 2: list -->
+      <div class="demo-step" data-delay="2500">
+        <div class="flex items-center gap-2">
+          <span class="text-emerald-400">$</span>
+          <span class="text-white" id="cmd-2"></span>
+          <span class="cursor-blink text-white">▋</span>
+        </div>
+        <div class="mt-2 hidden" id="output-2">
+          {isZh ? (
+            <pre class="text-xs leading-relaxed text-gray-300"><span class="text-indigo-400">📬</span> Agent邮箱  — 3 封邮件
+
+  <span class="text-yellow-400">●</span> 张三 — 会议通知            <span class="text-gray-500">2026-06-25</span>
+  <span class="text-yellow-400">★</span> 李四 — Q3 报告            <span class="text-gray-500">2026-06-24</span>
+  <span class="text-emerald-400">🤖</span> Agent — 任务完成通知       <span class="text-gray-500">2026-06-24</span></pre>
+          ) : (
+            <pre class="text-xs leading-relaxed text-gray-300"><span class="text-indigo-400">📬</span> Agent / INBOX — 3 emails
+
+  <span class="text-yellow-400">●</span> Alice — Meeting Notice      <span class="text-gray-500">2026-06-25</span>
+  <span class="text-yellow-400">★</span> Bob — Q3 Report             <span class="text-gray-500">2026-06-24</span>
+  <span class="text-emerald-400">🤖</span> Agent — Task Complete       <span class="text-gray-500">2026-06-24</span></pre>
+          )}
+        </div>
+      </div>
+
+      <!-- Step 3: send -->
+      <div class="demo-step" data-delay="5000">
+        <div class="flex items-center gap-2">
+          <span class="text-emerald-400">$</span>
+          <span class="text-white" id="cmd-3"></span>
+          <span class="cursor-blink text-white">▋</span>
+        </div>
+        <div class="mt-2 hidden" id="output-3">
+          <pre class="text-xs leading-relaxed"><span class="text-emerald-400">✅ {sentLabel}</span>
+  <span class="text-gray-500">→ {isZh ? 'zhangsan@example.com' : 'alice@example.com'}</span>
+  <span class="text-gray-500">{toLabel}: {isZh ? 'Re: 会议通知' : 'Re: Meeting Notice'}</span></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script define:vars={{ cmd1, cmd2, cmd3 }}>
+  const commands = [
+    { id: 'cmd-1', text: cmd1, outputId: 'output-1' },
+    { id: 'cmd-2', text: cmd2, outputId: 'output-2' },
+    { id: 'cmd-3', text: cmd3, outputId: 'output-3' },
+  ];
+
+  let started = false;
+
+  async function typeText(elementId, text, speed = 40) {
+    const el = document.getElementById(elementId);
+    if (!el) return;
+    for (let i = 0; i < text.length; i++) {
+      el.textContent += text[i];
+      await new Promise(r => setTimeout(r, speed));
+    }
+  }
+
+  async function runDemo() {
+    for (const cmd of commands) {
+      await typeText(cmd.id, cmd.text);
+      await new Promise(r => setTimeout(r, 300));
+      const output = document.getElementById(cmd.outputId);
+      if (output) {
+        output.classList.remove('hidden');
+      }
+      await new Promise(r => setTimeout(r, 1500));
+    }
+  }
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      if (entries[0].isIntersecting && !started) {
+        started = true;
+        runDemo();
+      }
+    },
+    { threshold: 0.3 }
+  );
+
+  const terminal = document.getElementById('terminal-demo');
+  if (terminal) {
+    observer.observe(terminal);
+  }
+</script>

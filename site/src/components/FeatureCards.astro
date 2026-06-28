@@ -1,0 +1,90 @@
+---
+/**
+ * FeatureCards — 核心特性展示
+ *
+ * 接收 locale prop 从 site-data 读取文案
+ * 3 卡片横排，响应式堆叠
+ */
+import { getSiteData, type Locale } from '../data/site-data';
+
+interface Props { locale?: Locale }
+const { locale = 'zh' } = Astro.props;
+const { featureCards } = getSiteData(locale);
+
+const colorMap: Record<string, { border: string; bg: string; text: string }> = {
+  blue:    { border: 'border-blue-500/30',    bg: 'bg-blue-500/5',    text: 'text-blue-400' },
+  emerald: { border: 'border-emerald-500/30', bg: 'bg-emerald-500/5', text: 'text-emerald-400' },
+  purple:  { border: 'border-purple-500/30',  bg: 'bg-purple-500/5',  text: 'text-purple-400' },
+  indigo:  { border: 'border-indigo-500/30',  bg: 'bg-indigo-500/5',  text: 'text-indigo-400' },
+};
+---
+
+<section class="feature-section">
+  <div class="feature-grid">
+    {featureCards.map((card) => {
+      const c = colorMap[card.color] ?? colorMap.indigo;
+      return (
+        <div class={`feature-card ${c.border}`}>
+          <div class={`feature-icon ${c.bg}`}>
+            <span class="text-2xl">{card.icon}</span>
+          </div>
+          <h3 class={`feature-title ${c.text}`}>{card.title}</h3>
+          <p class="feature-desc">{card.description}</p>
+        </div>
+      );
+    })}
+  </div>
+</section>
+
+<style>
+  .feature-section {
+    max-width: 72rem;
+    margin: 0 auto;
+    padding: 4rem 1.5rem;
+  }
+
+  .feature-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+  }
+
+  @media (max-width: 768px) {
+    .feature-grid { grid-template-columns: 1fr; }
+  }
+
+  .feature-card {
+    background: rgba(20, 20, 30, 0.6);
+    border: 1px solid var(--sl-color-gray-5, #27272a);
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+
+  .feature-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 30px rgba(99, 102, 241, 0.1);
+  }
+
+  .feature-icon {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+  }
+
+  .feature-title {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+
+  .feature-desc {
+    font-size: 0.8125rem;
+    color: #71717a;
+    line-height: 1.6;
+  }
+</style>

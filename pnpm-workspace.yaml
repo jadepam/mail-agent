@@ -1,0 +1,6 @@
+packages:
+  - 'packages/*'
+  - 'site'
+minimumReleaseAgeExclude:
+  - '@types/node@26.0.1'
+  - astro@7.0.3

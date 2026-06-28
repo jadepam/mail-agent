@@ -1,0 +1,86 @@
+version: 2
+updates:
+  # Root package.json
+  - package-ecosystem: 'npm'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+    open-pull-requests-limit: 10
+    labels:
+      - 'dependencies'
+      - 'automated pr'
+    commit-message:
+      prefix: 'chore(deps)'
+
+  # Core package
+  - package-ecosystem: 'npm'
+    directory: '/packages/core'
+    schedule:
+      interval: 'weekly'
+    labels:
+      - 'dependencies'
+      - 'automated pr'
+    commit-message:
+      prefix: 'chore(deps)'
+
+  # CLI package
+  - package-ecosystem: 'npm'
+    directory: '/packages/cli'
+    schedule:
+      interval: 'weekly'
+    labels:
+      - 'dependencies'
+      - 'automated pr'
+    commit-message:
+      prefix: 'chore(deps)'
+
+  # Provider packages
+  - package-ecosystem: 'npm'
+    directory: '/packages/provider-smtp'
+    schedule:
+      interval: 'weekly'
+    labels:
+      - 'dependencies'
+      - 'automated pr'
+    commit-message:
+      prefix: 'chore(deps)'
+
+  - package-ecosystem: 'npm'
+    directory: '/packages/provider-gmail-api'
+    schedule:
+      interval: 'weekly'
+    labels:
+      - 'dependencies'
+      - 'automated pr'
+    commit-message:
+      prefix: 'chore(deps)'
+
+  - package-ecosystem: 'npm'
+    directory: '/packages/provider-agently'
+    schedule:
+      interval: 'weekly'
+    labels:
+      - 'dependencies'
+      - 'automated pr'
+    commit-message:
+      prefix: 'chore(deps)'
+
+  # Site (Astro)
+  - package-ecosystem: 'npm'
+    directory: '/site'
+    schedule:
+      interval: 'weekly'
+    labels:
+      - 'dependencies'
+      - 'automated pr'
+    commit-message:
+      prefix: 'chore(deps)'
+
+  # GitHub Actions
+  - package-ecosystem: 'github-actions'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+    labels:
+      - 'ci'
+      - 'automated pr'

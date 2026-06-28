@@ -1,0 +1,107 @@
+---
+title: Supported Providers
+description: All email providers, protocols, and authentication methods supported by Mail Agent
+---
+
+## By Openness Level
+
+### Standard Protocol Mailboxes
+
+Providers expose IMAP/SMTP standard protocols. Use authorization code or password authentication.
+
+| Provider | SMTP | IMAP | Auth |
+|----------|------|------|------|
+| QQ Mail | smtp.qq.com:465 (SSL) | imap.qq.com:993 (TLS) | Authorization code |
+| 163 Mail | smtp.163.com:465 (SSL) | imap.163.com:993 (TLS) | Authorization code |
+| Corporate | Custom | Custom | Password (supports self-signed certs) |
+
+**QQ Mail authorization code**: QQ Mail → Settings → Account → Generate authorization code
+
+**163 Mail authorization code**: 163 Mail → Settings → POP3/SMTP/IMAP → Enable and get authorization code
+
+### Platform API Mailboxes
+
+Traditional email providers that expose official APIs. Requires OAuth2 authorization. Tokens auto-refresh.
+
+| Provider | API | Auth |
+|----------|-----|------|
+| Gmail | Gmail REST API | OAuth2 (browser authorization) |
+| Lark (Feishu) Enterprise | Mail Open API (via lark-cli) | lark-cli OAuth |
+
+**Gmail OAuth2 Setup**:
+
+1. Go to [Google Cloud Console](https://console.cloud.google.com/) and create a project
+2. Enable Gmail API
+3. Create OAuth2 credentials (desktop app type)
+4. Run `ma account add`, select Gmail, browser opens for authorization
+5. Token is automatically saved and refreshed after authorization
+
+> ⚠️ Gmail REST API requires direct access to Google servers. Use a proxy in regions with restricted access.
+
+**Lark (Feishu) Enterprise Mail Setup**:
+
+1. Install lark-cli (official Feishu CLI tool)
+2. Run `lark-cli auth login` to authenticate with your enterprise
+3. Run `ma account add`, select Lark Enterprise Mail — auto-detects local lark-cli login status
+
+> 💡 Lark Enterprise Mail is fundamentally a traditional enterprise mailbox, accessed via lark-cli wrapping the Mail Open API. Compared to IMAP/SMTP, API access is more stable with native thread and attachment management support.
+
+### Agent-Native Mailboxes
+
+Email built for AI from the ground up. API-first with CLI authentication.
+
+| Provider | API | Auth |
+|----------|-----|------|
+| Agently Mail | HTTP API (via agently-cli) | agently-cli OAuth |
+
+**Agently Mail Setup**:
+
+1. Install [agently-cli](https://agent.qq.com)
+2. Run `agently login` to authenticate
+3. Run `ma account add`, select Agently — auto-detects local agently-cli login status
+
+## Add Email Account
+
+```bash
+ma account add
+```
+
+Interactive setup with auto-detection of local agently-cli and lark-cli login status. Supports all email types.
+
+## Feature Compatibility
+
+Feature support by provider (tested in v0.3.0):
+
+| Feature | QQ Mail | 163 Mail | Gmail | Agently | Lark (Feishu) |
+|---------|---------|----------|-------|---------|---------------|
+| Account connection | ✅ SMTP + IMAP | ✅ SMTP + IMAP | ✅ API + OAuth2 | ✅ CLI connection | ✅ CLI connection |
+| list | ✅ | ✅ | ✅ | ✅ | ✅ |
+| read | ✅ | ✅ | ✅ | ✅ | ✅ |
+| search | ✅ | ⚠️ Chinese search broken | ✅ | ❌ Limited search | ✅ |
+| send | ✅ | ✅ | ✅ | ✅ | ✅ |
+| send + attachment | ✅ | ✅ | ✅ | ✅ | ✅ |
+| reply | ✅ | ✅ | ✅ | ✅ | ✅ |
+| forward | — | ✅ | ✅ | ✅ | ✅ |
+| download attachment | ✅ | ✅ | ✅ | ✅ | ✅ |
+| trash | ✅ | ✅ | ✅ | ✅ | ✅ |
+| thread | ✅ L1 (References) | — (no reply chain) | ✅ Native threadId | ❌ Not supported | ✅ Native thread |
+
+> ⚠️ "—" means the combination has not been tested, not that it's unsupported. ❌ marks are limited by the provider's server-side capabilities.
+
+## Known Limitations
+
+| Limitation | Workaround |
+|------------|------------|
+| 163 mailbox Chinese IMAP SEARCH returns empty | Use English keywords or `list` + client-side filtering |
+| 163 mailbox does not allow sending to self | 163 server-side restriction, no workaround |
+| Gmail requires proxy in restricted regions | Configure HTTP proxy or VPN |
+| QQ IMAP doesn't support HEADER Message-ID search | Use UID from `list` for `read` |
+| Agently search capability is limited | Use `list` to browse emails |
+
+## Test Connection
+
+```bash
+ma account test <alias>
+```
+
+Verify that the email connection works. Shows latency and status.

@@ -1,0 +1,47 @@
+{
+  "name": "@mail-agent/cli",
+  "version": "0.1.0",
+  "license": "MIT",
+  "author": "jadepam",
+  "description": "Mail Agent Kit CLI - 一行命令接入 AI Agent 操作邮箱",
+  "type": "module",
+  "bin": {
+    "ma": "./dist/index.mjs"
+  },
+  "scripts": {
+    "build": "tsdown",
+    "dev": "tsdown --watch",
+    "clean": "rm -rf dist",
+    "prepublishOnly": "pnpm run build",
+    "test": "vitest run"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@mail-agent/core": "workspace:*",
+    "@mail-agent/provider-agently": "workspace:*",
+    "@mail-agent/provider-gmail-api": "workspace:*",
+    "@mail-agent/provider-lark": "workspace:*",
+    "@mail-agent/provider-smtp": "workspace:*",
+    "@modelcontextprotocol/sdk": "^1.12.0",
+    "cli-table3": "^0.6.5",
+    "commander": "^12.0.0",
+    "inquirer": "^14.0.2",
+    "uuid": "^10.0.0",
+    "yaml": "^2.4.0",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@sinonjs/fake-timers": "^15.4.0",
+    "tsdown": "^0.22.0",
+    "typescript": "^5.4.0"
+  },
+  "files": [
+    "dist"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jadepam/mail-agent.git"
+  }
+}

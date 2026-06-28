@@ -1,0 +1,103 @@
+---
+// Mail Agent custom Header for Starlight doc pages
+// Identical inner layout to Navbar.astro (homepage)
+import config from 'virtual:starlight/user-config';
+import LanguageSelect from 'virtual:starlight/components/LanguageSelect';
+import Search from 'virtual:starlight/components/Search';
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+
+// Determine locale from the current page route
+const sl = Astro.locals.starlightRoute;
+const locale: string | undefined = sl?.locale;
+const isEn = locale === 'en';
+
+const navLabels = isEn
+  ? { home: 'Home', docs: 'Docs' }
+  : { home: '首页', docs: '文档' };
+
+// Homepage shows "Docs" link only; doc pages show "Home" link only
+const isHomepage = sl?.entry?.data?.hero != null;
+
+const shouldRenderSearch =
+  config.pagefind || config.components.Search !== '@astrojs/starlight/components/Search.astro';
+---
+
+<div class="mail-agent-header-inner">
+  <div class="mail-agent-header-left">
+    <a href={`${base}/`} class="site-title sl-flex" style="text-decoration:none;gap:0.5rem;align-items:center;">
+      <svg width="24" height="24" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="32" height="32" rx="6" fill="#6366f1"/>
+        <path d="M6 12 L16 20 L26 12" stroke="white" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M6 12 L6 22 Q6 24 8 24 L24 24 Q26 24 26 22 L26 12" stroke="white" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      </svg>
+      <span translate="no" style="font-size:1.125rem;font-weight:700;color:var(--sl-color-white);">Mail Agent</span>
+    </a>
+  </div>
+  <div class="sl-flex print:hidden mail-agent-header-search">
+    {shouldRenderSearch && <Search />}
+  </div>
+  <div class="mail-agent-header-right sl-hidden md:sl-flex print:hidden">
+    {isHomepage
+      ? <a href={`${base}/${isEn ? 'en/' : ''}getting-started/`} class="mail-agent-header-link">{navLabels.docs}</a>
+      : <a href={`${base}/${isEn ? 'en/' : ''}`} class="mail-agent-header-link">{navLabels.home}</a>
+    }
+    <a href="https://github.com/jadepam/mail-agent" target="_blank" class="mail-agent-header-link">GitHub</a>
+    <LanguageSelect />
+  </div>
+</div>
+
+<style>
+  .mail-agent-header-inner {
+    display: flex;
+    gap: 1rem;
+    justify-content: space-between;
+    align-items: center;
+    height: 100%;
+  }
+
+  .mail-agent-header-left {
+    overflow: clip;
+    padding: 0.25rem;
+    margin: -0.25rem;
+    min-width: 0;
+    /* Align logo left edge with sidebar content left edge */
+    margin-left: calc(var(--sl-sidebar-pad-x, 1rem) - var(--sl-nav-pad-x, 1rem));
+  }
+
+  .mail-agent-header-search {
+    flex: 1;
+  }
+
+  .mail-agent-header-right {
+    gap: 1rem;
+    align-items: center;
+  }
+
+  .mail-agent-header-link {
+    font-size: 0.875rem;
+    color: var(--sl-color-gray-3, #71717a);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .mail-agent-header-link:hover {
+    color: var(--sl-color-white, #e4e4e7);
+  }
+
+  @media (min-width: 50rem) {
+    .mail-agent-header-inner {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-content: center;
+    }
+    .mail-agent-header-left {
+      /* On doc pages with sidebar: match sidebar content left edge.
+         --sl-content-inline-start = sidebar width (18.75rem),
+         sidebar content starts at --sl-sidebar-pad-x from the left.
+         Header already has --sl-nav-pad-x left padding,
+         so we need to offset by (sidebar-pad-x - nav-pad-x) more to align. */
+      margin-left: calc(var(--sl-sidebar-pad-x, 1rem) - var(--sl-nav-pad-x, 1rem));
+    }
+  }
+</style>
